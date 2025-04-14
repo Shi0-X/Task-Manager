@@ -11,6 +11,7 @@
       "prebuild": "rm -rf dist",
       "test": "jest --verbose --runInBand",
       "build": "webpack",
+      "dev": "node server/index.js",
       "start": "fastify start server/plugin.js -l debug -P -o"
    },
    "jest": {

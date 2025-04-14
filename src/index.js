@@ -1,4 +1,11 @@
 // @ts-check
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import Fastify from 'fastify';
+
+const app = Fastify({ logger: true });
+
+app.get('/', async (request, reply) => {
+  return { message: '¡Bienvenido al Gestor de Tareas!' };
+});
+
+export default app;
