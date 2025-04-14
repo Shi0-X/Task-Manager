@@ -1,24 +1,46 @@
-# fastify-nodejs-application
+### Hexlet tests and linter status:
+ [![Actions Status](https://github.com/Shi0-X/fullstack-javascript-project-141/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Shi0-X/fullstack-javascript-project-141/actions)
 
-[![Node CI](https://github.com/hexlet-boilerplates/fastify-nodejs-application/workflows/Node%20CI/badge.svg)](https://github.com/hexlet-boilerplates/fastify-nodejs-application/actions)
+# 🗂️ Task Manager
 
-## Setup
+**Task Manager** es una aplicación web que Permite gestionar tareas de manera colaborativa, con funcionalidades como registro de usuarios, asignación de responsables, definición de estados y filtrado avanzado.
 
-```bash
-make setup
-```
-
-## Run
-
-```bash
-$ make start
-# Open localhost:5000
-```
+Este proyecto refleja una arquitectura backend moderna, utilizando Fastify, PostgreSQL, autenticación y enrutamiento limpio. Está preparado para escalar y seguir buenas prácticas de DevOps y despliegue continuo.
 
 ---
 
-[![Hexlet Ltd. logo](https://raw.githubusercontent.com/Hexlet/assets/master/images/hexlet_logo128.png)](https://hexlet.io?utm_source=github&utm_medium=link&utm_campaign=fastify-nodejs-application)
+## 🚀 Enlace a la aplicación
 
-This repository is created and maintained by the team and the community of Hexlet, an educational project. [Read more about Hexlet](https://hexlet.io?utm_source=github&utm_medium=link&utm_campaign=fastify-nodejs-application).
+🌐 [Ver Task Manager en Render](https://task-manager-bvbg.onrender.com/)
 
-See most active contributors on [hexlet-friends](https://friends.hexlet.io/).
+---
+
+## 🛠️ Tecnologías utilizadas
+
+- **Node.js**
+- **Fastify**
+- **PostgreSQL**
+- **Knex.js**
+- **Pug (para vistas)**
+- **Passport.js (autenticación)**
+- **dotenv**
+- **Render (despliegue en producción)**
+- **Jest (pruebas automatizadas)**
+
+## Instalacion y uso local
+
+# Clona el proyecto
+git clone https://github.com/tu-usuario/task-manager.git
+cd task-manager
+
+# Instala dependencias
+npm install
+
+# Crea un archivo .env basado en .env.example
+cp .env.example .env
+
+# Inicia el servidor en desarrollo
+npm run dev
+
+# Accede en tu navegador
+http://localhost:3000
