@@ -2,12 +2,8 @@
 
 import welcome from './welcome.js';
 import users from './users.js';
-import session from './session.js';
+import sessions from './session.js'; // Asegúrate de que el nombre del archivo sea "session.js"
 
-const controllers = [
-  welcome,
-  users,
-  session,
-];
+const controllers = [welcome, users, sessions];
 
-export default (app) => controllers.forEach((f) => f(app));
+export default (app) => controllers.forEach((controller) => controller(app));

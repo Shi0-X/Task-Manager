@@ -1,33 +1,25 @@
 // @ts-check
-
 import i18next from 'i18next';
 
 export default (app) => {
-  app
-    .get('/session/new', { name: 'newSession' }, (req, reply) => {
-      const signInForm = {};
-      reply.render('session/new', { signInForm });
-    })
-    .post('/session', { name: 'session' }, app.fp.authenticate('form', async (req, reply, err, user) => {
-      if (err) {
-        return app.httpErrors.internalServerError(err);
-      }
-      if (!user) {
-        const signInForm = req.body.data;
-        const errors = {
-          email: [{ message: i18next.t('flash.session.create.error') }],
-        };
-        reply.render('session/new', { signInForm, errors });
-        return reply;
-      }
-      await req.logIn(user);
-      req.flash('success', i18next.t('flash.session.create.success'));
-      reply.redirect(app.reverse('root'));
-      return reply;
-    }))
-    .delete('/session', (req, reply) => {
-      req.logOut();
-      req.flash('info', i18next.t('flash.session.delete.success'));
-      reply.redirect(app.reverse('root'));
-    });
+  app.get('/session/new', { name: 'newSession' }, (req, reply) => {
+    const signInForm = {};
+    return reply.view('session/new', { signInForm });
+  });
+
+  // Ruta POST para iniciar sesión: se reemplaza la autenticación real por un dummy
+  app.post('/session', { name: 'session' }, async (req, reply) => {
+    // Por el momento, siempre se simula un error de autenticación
+    const signInForm = req.body.data;
+    const errors = {
+      email: [{ message: i18next.t('flash.session.create.error') }],
+    };
+    return reply.view('session/new', { signInForm, errors });
+  });
+
+  app.delete('/session', (req, reply) => {
+    // Simula el cierre de sesión
+    req.flash('info', i18next.t('flash.session.delete.success'));
+    return reply.redirect(app.reverse('root'));
+  });
 };
