@@ -1,9 +1,6 @@
 // knexfile.js
-// @ts-check
-
 import path from 'path';
 import { fileURLToPath } from 'url';
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const migrations = {
@@ -26,9 +23,14 @@ export const test = {
   migrations,
 };
 
-// **Producción: usar Postgres vía env var DATABASE_URL**
 export const production = {
   client: 'pg',
-  connection: process.env.DATABASE_URL,
+  connection: {
+    // Toma la URL de Render
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false, // Acepta el certificado auto‑firmado de Render
+    },
+  },
   migrations,
 };
