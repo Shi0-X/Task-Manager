@@ -3,13 +3,13 @@
 
 import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs';
 import fastifyStatic from '@fastify/static';
 import fastifyView from '@fastify/view';
 import fastifyFormbody from '@fastify/formbody';
 import fastifySecureSession from '@fastify/secure-session';
 import fastifyPassport from '@fastify/passport';
 import fastifySensible from '@fastify/sensible';
-// ¡IMPORT CORREGIDO!
 import fastifyMethodOverride from 'fastify-method-override';
 import fastifyObjectionjs from 'fastify-objectionjs';
 import qs from 'qs';
@@ -33,12 +33,12 @@ async function registerPlugins(app) {
   await app.register(fastifySensible);
   await app.register(fastifyFormbody, { parser: qs.parse });
 
-  // 2) sesión segura
+  // 2) secure-session
   await app.register(fastifySecureSession, {
     secret: process.env.SESSION_KEY,
     cookie: {
       path: '/',
-      secure: isProd,
+      secure: isProd,              // secure=true en producción HTTPS
       sameSite: isProd ? 'none' : 'lax',
     },
   });
@@ -47,7 +47,9 @@ async function registerPlugins(app) {
   fastifyPassport.registerUserDeserializer((user) =>
     app.objection.models.user.query().findById(user.id)
   );
-  fastifyPassport.registerUserSerializer((user) => Promise.resolve(user));
+  fastifyPassport.registerUserSerializer((user) =>
+    Promise.resolve(user)
+  );
   fastifyPassport.use(new FormStrategy('form', app));
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
@@ -72,7 +74,7 @@ async function registerPlugins(app) {
 async function setUpViews(app) {
   const helpers = getHelpers(app);
 
-  // Registrar Pug
+  // 5) fastify-view + pug
   await app.register(fastifyView, {
     engine: { pug: Pug },
     includeViewExtension: true,
@@ -83,7 +85,7 @@ async function setUpViews(app) {
     },
   });
 
-  // Override de render() para inyectar flash() e isAuthenticated()
+  // 6) Override render() para inyectar flash() e isAuthenticated()
   app.decorateReply('render', function (viewPath, locals = {}) {
     const reply = this;
     function flashFn() {
@@ -109,12 +111,14 @@ async function setupLocalization() {
 }
 
 function setUpStaticAssets(app) {
-  // Cambiado a tu carpeta de assets estáticos correcta
-  const publicDir = path.join(__dirname, '..', 'public');
-  app.register(fastifyStatic, {
-    root: publicDir,
-    prefix: '/assets/',
-  });
+  const publicDir = path.join(__dirname, '..', 'dist');
+  // Solo monta /assets si dist existe
+  if (fs.existsSync(publicDir)) {
+    app.register(fastifyStatic, {
+      root: publicDir,
+      prefix: '/assets/',
+    });
+  }
 }
 
 export default async function plugin(app, _opts) {
@@ -123,7 +127,7 @@ export default async function plugin(app, _opts) {
   await setUpViews(app);
   setUpStaticAssets(app);
 
-  // Evita que favicon.ico interfiera
+  // Ignorar favicon
   app.setNotFoundHandler((req, reply) => {
     if (req.raw.url === '/favicon.ico') {
       return reply.code(204).send();
@@ -131,7 +135,7 @@ export default async function plugin(app, _opts) {
     reply.callNotFound();
   });
 
-  // Hook de debug solo en desarrollo
+  // Hook de debug SOLO en dev
   if (!isProd) {
     app.addHook('preHandler', (req, reply, done) => {
       console.log('─── DEBUG preHandler ───');
