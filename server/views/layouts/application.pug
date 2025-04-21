@@ -1,71 +1,86 @@
+// server/views/layouts/application.pug
 doctype html
 html(lang="en")
   head
     title= t('appName')
     meta(charset="utf-8")
     meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
-
     // Bootstrap 5.3 CSS vía CDN
-    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css")
-
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css")
     // Estilos personalizados para la segunda barra
     style.
-      /* Ajusta el color y tamaño del texto de la segunda barra */
       .nav-scroller .nav-link {
-        color: #6c757d; /* gris por defecto */
-        font-size: 0.9rem; /* reduce un poco el tamaño de la fuente */
+        color: #6c757d;
+        font-size: 0.9rem;
       }
-      /* Al pasar el cursor, color azul (bootstrap primary) */
       .nav-scroller .nav-link:hover {
         color: #0d6efd;
       }
 
   body.bg-light
-    // Cabecera fija que contiene ambas barras
+    // Encabezado fijo que agrupa ambas barras
     header.fixed-top
-      // PRIMERA NAVBAR (offcanvas), ocupando el ancho total
+      // Navbar principal (offcanvas), tema oscuro
       nav.navbar.navbar-expand-lg.navbar-dark.bg-dark(aria-label="Primary navigation")
         .container-fluid
           a.navbar-brand(href=route('root'))= t('appName')
-          button.navbar-toggler(type="button", data-bs-toggle="offcanvas", data-bs-target="#navbarOffcanvas", aria-controls="navbarOffcanvas")
+          button.navbar-toggler(
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#navbarOffcanvas"
+            aria-controls="navbarOffcanvas"
+          )
             span.navbar-toggler-icon
-          .offcanvas.offcanvas-end.text-bg-dark(id="navbarOffcanvas", tabindex="-1", aria-labelledby="navbarOffcanvasLabel")
+          .offcanvas.offcanvas-end.text-bg-dark#navbarOffcanvas(tabindex="-1")
             .offcanvas-header
               h5.offcanvas-title#navbarOffcanvasLabel= t('layouts.application.menu')
-              button.btn-close(type="button", data-bs-dismiss="offcanvas", aria-label="Close")
+              button.btn-close(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
             .offcanvas-body
               ul.navbar-nav.justify-content-end.flex-grow-1.pe-3
                 li.nav-item
                   a.nav-link(href=route('root'))= t('layouts.application.home')
                 li.nav-item
-                  a.nav-link(href=route('login'))= t('menu.login')
-                li.nav-item
-                  a.nav-link(href=route('register'))= t('menu.register')
-                li.nav-item
-                  a.nav-link(href=route('users'))= t('menu.users')
+                  a.nav-link(href=route('users'))= t('layouts.application.users')
+                if !isAuthenticated()
+                  li.nav-item
+                    a.nav-link(href=route('newSession'))= t('layouts.application.signIn')
+                  li.nav-item
+                    a.nav-link(href=route('newUser'))= t('layouts.application.signUp')
+                else
+                  li.nav-item
+                    form(method="POST", action=route('sessionDelete'))
+                      input(type="hidden" name="_method" value="DELETE")
+                      button.btn.btn-link.nav-link(type="submit")= t('layouts.application.signOut')
 
-      // SEGUNDA BARRA (nav-scroller), también con .container-fluid
+      // Segunda barra (nav-scroller), misma anchura
       .nav-scroller.bg-body.shadow-sm
         .container-fluid
           nav.nav.nav-underline(aria-label="Secondary navigation")
             a.nav-link.active(aria-current="page", href="#") Dashboard
-            a.nav-link(href="#")
-              | Friends
-              span.badge.bg-light.text-dark.rounded-pill.align-text-bottom 27
+            a.nav-link(href="#") Friends
             a.nav-link(href="#") Explore
             a.nav-link(href="#") Suggestions
             a.nav-link(href="#") Link
             a.nav-link(href="#") Link
             a.nav-link(href="#") Link
-            a.nav-link(href="#") Link
-            a.nav-link(href="#") Link
 
-    // Contenido principal con padding-top suficiente para no quedar oculto tras las dos barras
+    // Contenedor principal, con espacio para el header fijo
     main.container(style="padding-top: 120px;")
+      // Mensajes flash
+      - const flashes = flash() || {}
+      each messages, type in flashes
+        each msg in messages
+          .alert(class=`alert-${type}`)= msg
+
+      // Bloque de cabecera opcional
+      block header
+
+      // Bloque de contenido principal
       block content
 
+    // Footer
     footer.text-center.mt-4
       p &copy; 2025 Your Company
 
-    // Bootstrap Bundle JS (para offcanvas y demás)
+    // Bootstrap Bundle JS vía CDN
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")

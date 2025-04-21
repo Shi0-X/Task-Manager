@@ -6,29 +6,29 @@ export default {
     menu: {
       login: 'Login',
       register: 'Register',
-      users: 'Users'
+      users: 'Users',
     },
     welcome: {
       heading: 'Welcome to Task Manager',
-      description: 'Manage your tasks efficiently and collaboratively!'
+      description: 'Manage your tasks efficiently and collaboratively!',
     },
     flash: {
       session: {
         create: {
           success: 'You are logged in',
-          error: 'Wrong email or password'
+          error: 'Wrong email or password',
         },
         delete: {
-          success: 'You are logged out'
-        }
+          success: 'You are logged out',
+        },
       },
       users: {
         create: {
           error: 'Failed to register',
-          success: 'User registered successfully'
-        }
+          success: 'User registered successfully',
+        },
       },
-      authError: 'Access denied! Please login'
+      authError: 'Access denied! Please login',
     },
     layouts: {
       application: {
@@ -37,33 +37,42 @@ export default {
         users: 'Users',
         signIn: 'Login',
         signUp: 'Register',
-        signOut: 'Logout'
-      }
+        signOut: 'Logout',
+      },
     },
     views: {
       session: {
         new: {
           signIn: 'Login',
-          submit: 'Login'
-        }
+          email: 'Email',
+          password: 'Password',
+          submit: 'Login',
+        },
       },
       users: {
+        fields: {
+          firstName: 'First Name',
+          lastName: 'Last Name',
+          email: 'Email',
+          password: 'Password',
+        },
+        new: {
+          heading: 'Register',
+          submit: 'Register',
+          signUp: 'Register',
+        },
         id: 'ID',
         email: 'Email',
         createdAt: 'Created at',
-        new: {
-          submit: 'Register',
-          signUp: 'Register'
-        }
       },
       welcome: {
         index: {
           hello: 'Welcome!',
           header: 'Welcome to Task Manager',
           description: 'Manage your tasks efficiently and collaboratively!',
-          more: 'Learn more'
-        }
-      }
-    }
-  }
+          more: 'Learn more',
+        },
+      },
+    },
+  },
 };

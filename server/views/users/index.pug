@@ -1,15 +1,21 @@
 extends ../layouts/application.pug
 
+block header
+  h1= t('layouts.application.users')
+
 block content
-  table.table.table-striped
-    thead
-      tr
-        th= t('views.users.id')
-        th= t('views.users.email')
-        th= t('views.users.createdAt')
-    tbody
-      each user in users
+  if users.length
+    table.table.table-striped
+      thead
         tr
-          td= user.id
-          td= user.email
-          td= formatDate(user.createdAt)
+          th= t('views.users.id')
+          th= t('views.users.email')
+          th= t('views.users.createdAt')
+      tbody
+        each u in users
+          tr
+            td= u.id
+            td= u.email
+            td= formatDate(u.createdAt)
+  else
+    p.text-muted No users yet.

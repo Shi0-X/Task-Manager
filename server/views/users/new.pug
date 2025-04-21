@@ -1,10 +1,57 @@
 extends ../layouts/application.pug
 
 block header
-  = t('views.users.new.signUp')
+  h1= t('views.users.new.heading')
 
 block content
-  +formFor()(action=route('users') method='post')
-    +input(user, 'email', errors)(type="text")
-    +input(user, 'password', errors)(type="password")
-    +submit(user)(value=t('views.users.new.submit'))
+  .row.justify-content-center
+    .col-md-6
+      form(method="POST", action="/users")
+        //– First Name
+        .mb-3
+          label.form-label(for="data_firstName")= t('views.users.fields.firstName')
+          input#data_firstName.form-control(
+            type="text"
+            name="data[firstName]"
+            value=user.firstName || ''
+          )
+          if errors && errors.firstName
+            each err in errors.firstName
+              .text-danger= err.message
+
+        //– Last Name
+        .mb-3
+          label.form-label(for="data_lastName")= t('views.users.fields.lastName')
+          input#data_lastName.form-control(
+            type="text"
+            name="data[lastName]"
+            value=user.lastName || ''
+          )
+          if errors && errors.lastName
+            each err in errors.lastName
+              .text-danger= err.message
+
+        //– Email
+        .mb-3
+          label.form-label(for="data_email")= t('views.users.fields.email')
+          input#data_email.form-control(
+            type="email"
+            name="data[email]"
+            value=user.email || ''
+          )
+          if errors && errors.email
+            each err in errors.email
+              .text-danger= err.message
+
+        //– Password
+        .mb-3
+          label.form-label(for="data_password")= t('views.users.fields.password')
+          input#data_password.form-control(
+            type="password"
+            name="data[password]"
+          )
+          if errors && errors.password
+            each err in errors.password
+              .text-danger= err.message
+
+        button.btn.btn-primary(type="submit")= t('views.users.new.submit')

@@ -1,17 +1,13 @@
+// server/routes/welcome.js
 // @ts-check
 
-export default async function welcomeRoutes(app) {
-  app.get('/', { name: 'root' }, async (req, reply) => {
-    console.log('Rendering /');
-    return reply.view('welcome/index');
-  });
-
-  // Ruta protegida (si usas autenticación, ajusta el preValidation)
+export default (app) => {
   app.get(
-    '/protected',
-    { name: 'protected', preValidation: app.authenticate },
-    async (req, reply) => {
-      return reply.view('welcome/index');
+    '/',
+    { name: 'root' },
+    (req, reply) => {
+      // Antes era reply.view, ahora usamos render:
+      return reply.render('welcome/index');
     }
   );
-}
+};

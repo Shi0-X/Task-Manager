@@ -1,25 +1,38 @@
+// server/routes/session.js
 // @ts-check
+
 import i18next from 'i18next';
 
 export default (app) => {
-  app.get('/session/new', { name: 'newSession' }, (req, reply) => {
-    const signInForm = {};
-    return reply.view('session/new', { signInForm });
-  });
+  // Mostrar formulario de login
+  app.get(
+    '/session/new',
+    { name: 'newSession' },
+    (req, reply) => {
+      return reply.render('session/new', { signInForm: {} });
+    },
+  );
 
-  // Ruta POST para iniciar sesión: se reemplaza la autenticación real por un dummy
-  app.post('/session', { name: 'session' }, async (req, reply) => {
-    // Por el momento, siempre se simula un error de autenticación
-    const signInForm = req.body.data;
-    const errors = {
-      email: [{ message: i18next.t('flash.session.create.error') }],
-    };
-    return reply.view('session/new', { signInForm, errors });
-  });
+  // Procesar login real
+  app.post(
+    '/session',
+    { name: 'session', preValidation: app.authenticate },
+    (req, reply) => {
+      req.flash('success', i18next.t('flash.session.create.success'));
+      // Redirigimos a la raíz tras un login exitoso
+      return reply.redirect('/');
+    },
+  );
 
-  app.delete('/session', (req, reply) => {
-    // Simula el cierre de sesión
-    req.flash('info', i18next.t('flash.session.delete.success'));
-    return reply.redirect(app.reverse('root'));
-  });
+  // Cerrar sesión
+  app.delete(
+    '/session',
+    { name: 'sessionDelete' },
+    (req, reply) => {
+      req.logout();
+      req.flash('info', i18next.t('flash.session.delete.success'));
+      // Redirigimos a la raíz tras el logout
+      return reply.redirect('/');
+    },
+  );
 };
