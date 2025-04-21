@@ -9,8 +9,8 @@ const start = async () => {
   try {
     const app = await buildApp();
 
-    // 🌱 Ejecuta migraciones al arrancar
-    await app.knex.migrate.latest();
+    // 🌱 Ejecuta migraciones usando Objection (app.objection.knex)
+    await app.objection.knex.migrate.latest();
 
     const port = process.env.PORT || 3000;
     await app.listen({ port, host: '0.0.0.0' });
