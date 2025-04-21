@@ -38,11 +38,12 @@ async function registerPlugins(app) {
     secret: process.env.SESSION_KEY,
     cookie: {
       path: '/',
-      secure: true,         // HTTPS obligatorio
-      sameSite: 'none',     // permite envío cross-site
-      httpOnly: true,       // (opcional) sólo servidor
+      secure: isProd,                  // sólo true en producción HTTPS
+      sameSite: isProd ? 'none' : 'lax',
+      httpOnly: true,                  // opción recomendada
     },
   });
+
   
   // 3) Passport
   fastifyPassport.registerUserDeserializer((user) =>
