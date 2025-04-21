@@ -38,7 +38,7 @@ async function registerPlugins(app) {
     secret: process.env.SESSION_KEY,
     cookie: {
       path: '/',
-      secure: isProd,              // secure=true en producción HTTPS
+      secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
     },
   });
@@ -112,7 +112,6 @@ async function setupLocalization() {
 
 function setUpStaticAssets(app) {
   const publicDir = path.join(__dirname, '..', 'dist');
-  // Solo monta /assets si dist existe
   if (fs.existsSync(publicDir)) {
     app.register(fastifyStatic, {
       root: publicDir,
@@ -127,7 +126,12 @@ export default async function plugin(app, _opts) {
   await setUpViews(app);
   setUpStaticAssets(app);
 
-  // Ignorar favicon
+  // 7) Ejecutar migraciones una vez que todos los plugins estén listos
+  app.addHook('onReady', async () => {
+    await app.objection.knex.migrate.latest();
+  });
+
+  // Ignorar favicon.ico
   app.setNotFoundHandler((req, reply) => {
     if (req.raw.url === '/favicon.ico') {
       return reply.code(204).send();
@@ -135,7 +139,7 @@ export default async function plugin(app, _opts) {
     reply.callNotFound();
   });
 
-  // Hook de debug SOLO en dev
+  // Hook de debug sólo en desarrollo
   if (!isProd) {
     app.addHook('preHandler', (req, reply, done) => {
       console.log('─── DEBUG preHandler ───');
