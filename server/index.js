@@ -1,5 +1,3 @@
-// server/index.js
-
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -9,7 +7,7 @@ const start = async () => {
   try {
     const app = await buildApp();
 
-    // 🌱 Ejecutamos migraciones al arrancar en producción (o también en dev si quieres)
+    // Ejecutar migraciones antes de arrancar el servidor
     await app.objection.knex.migrate.latest();
 
     const port = process.env.PORT || 3000;

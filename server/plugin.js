@@ -9,7 +9,7 @@ import fastifyFormbody from '@fastify/formbody';
 import fastifySecureSession from '@fastify/secure-session';
 import fastifyPassport from '@fastify/passport';
 import fastifySensible from '@fastify/sensible';
-import fastifyMethodOverride from 'fastify-method-override';
+import fastifyMethodOverride from '@fastify/method-override';
 import fastifyObjectionjs from 'fastify-objectionjs';
 import qs from 'qs';
 import Pug from 'pug';
@@ -37,9 +37,8 @@ async function registerPlugins(app) {
     secret: process.env.SESSION_KEY,
     cookie: {
       path: '/',
-      secure: isProd,            // solo secure en producción (HTTPS)
+      secure: isProd,                // solo secure en producción
       sameSite: isProd ? 'none' : 'lax',
-      // domain: can be añadido aquí si lo necesitas en prod
     },
   });
 
@@ -47,7 +46,9 @@ async function registerPlugins(app) {
   fastifyPassport.registerUserDeserializer((user) =>
     app.objection.models.user.query().findById(user.id)
   );
-  fastifyPassport.registerUserSerializer((user) => Promise.resolve(user));
+  fastifyPassport.registerUserSerializer((user) =>
+    Promise.resolve(user)
+  );
   fastifyPassport.use(new FormStrategy('form', app));
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
@@ -109,7 +110,8 @@ async function setupLocalization() {
 }
 
 function setUpStaticAssets(app) {
-  const publicDir = path.join(__dirname, '..', 'dist');
+  // Ahora apuntamos al directorio `public/`, no a `dist/`
+  const publicDir = path.join(__dirname, '..', 'public');
   app.register(fastifyStatic, {
     root: publicDir,
     prefix: '/assets/',
@@ -122,7 +124,7 @@ export default async function plugin(app, _opts) {
   await setUpViews(app);
   setUpStaticAssets(app);
 
-  //  Evita que favicon.ico reinicie sesión: respondemos 204
+  // Evita que favicon.ico reinicie la sesión
   app.setNotFoundHandler((req, reply) => {
     if (req.raw.url === '/favicon.ico') {
       return reply.code(204).send();
@@ -130,7 +132,7 @@ export default async function plugin(app, _opts) {
     reply.callNotFound();
   });
 
-  // (Opcional) hook de debug que puedes desactivar en prod
+  // (Opcional) hook de debug solo en desarrollo
   if (!isProd) {
     app.addHook('preHandler', (req, reply, done) => {
       console.log('─── DEBUG preHandler ───');
