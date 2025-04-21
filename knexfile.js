@@ -1,3 +1,4 @@
+// knexfile.js
 // @ts-check
 
 import path from 'path';
@@ -22,15 +23,12 @@ export const test = {
   client: 'sqlite3',
   connection: ':memory:',
   useNullAsDefault: true,
-  // debug: true,
   migrations,
 };
 
+// **Producción: usar Postgres vía env var DATABASE_URL**
 export const production = {
-  client: 'sqlite3',
-  connection: {
-    filename: path.resolve(__dirname, 'database.sqlite'),
-  },
-  useNullAsDefault: true,
+  client: 'pg',
+  connection: process.env.DATABASE_URL,
   migrations,
 };
