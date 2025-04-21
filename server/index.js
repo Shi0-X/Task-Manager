@@ -1,4 +1,5 @@
 // server/index.js
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -8,10 +9,8 @@ const start = async () => {
   try {
     const app = await buildApp();
 
-    // 🌱 Ejecutamos migraciones en producción
-    if (process.env.NODE_ENV === 'production') {
-      await app.objection.knex.migrate.latest();
-    }
+    // 🌱 Ejecuta migraciones al arrancar
+    await app.knex.migrate.latest();
 
     const port = process.env.PORT || 3000;
     await app.listen({ port, host: '0.0.0.0' });

@@ -1,6 +1,9 @@
 // knexfile.js
+// @ts-check
+
 import path from 'path';
 import { fileURLToPath } from 'url';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const migrations = {
@@ -25,12 +28,9 @@ export const test = {
 
 export const production = {
   client: 'pg',
-  connection: {
-    // Toma la URL de Render
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false, // Acepta el certificado auto‑firmado de Render
-    },
-  },
+  connection: process.env.DATABASE_URL,
+  // Para Postgres en Render con SSL:
+  ssl: { rejectUnauthorized: false },
+  pool: { min: 2, max: 10 },
   migrations,
 };
