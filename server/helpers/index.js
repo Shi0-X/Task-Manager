@@ -1,20 +1,12 @@
-// server/helpers/index.js
 // @ts-check
 
 import i18next from 'i18next';
 import _ from 'lodash';
 
-export default () => ({
-  route(name) {
-    const map = {
-      root: '/',
-      users: '/users',
-      newUser: '/users/new',
-      newSession: '/session/new',
-      session: '/session',
-      sessionDelete: '/session', // se usará método DELETE
-    };
-    return map[name] || '#';
+export default (app) => ({
+  // Ahora acepta params dinámicos
+  route(name, params = {}) {
+    return app.reverse(name, params);
   },
   t(key) {
     return i18next.t(key);

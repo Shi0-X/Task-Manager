@@ -1,4 +1,5 @@
-// knexfile.js
+// @ts-check
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -21,16 +22,15 @@ export const test = {
   client: 'sqlite3',
   connection: ':memory:',
   useNullAsDefault: true,
+  // debug: true,
   migrations,
 };
 
 export const production = {
-  client: 'pg',
+  client: 'sqlite3',
   connection: {
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
+    filename: path.resolve(__dirname, 'database.sqlite'),
   },
+  useNullAsDefault: true,
   migrations,
 };

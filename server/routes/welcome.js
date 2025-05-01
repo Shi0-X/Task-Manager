@@ -1,13 +1,11 @@
-// server/routes/welcome.js
 // @ts-check
 
 export default (app) => {
-  app.get(
-    '/',
-    { name: 'root' },
-    (req, reply) => {
-      // Antes era reply.view, ahora usamos render:
-      return reply.render('welcome/index');
-    }
-  );
+  app
+    .get('/', { name: 'root' }, (req, reply) => {
+      reply.render('welcome/index');
+    })
+    .get('/protected', { name: 'protected', preValidation: app.authenticate }, (req, reply) => {
+      reply.render('welcome/index');
+    });
 };

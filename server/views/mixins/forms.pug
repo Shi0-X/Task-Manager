@@ -1,20 +1,18 @@
 - const getInputName = (property) => `data[${property}]`
-- const getInputId = (property) => `data_${property}`
+- const getInputId   = (property) => `data_${property}`
 
 mixin formFor(entity = null)
   form&attributes(attributes)
     block
 
 mixin input(entity, propertyName, errors = {})
-  - propertyErrors = _.get(errors, propertyName)
-  - classLine = 'form-control' + (_.isEmpty(propertyErrors) ? '' : ' is-invalid')
-  - inputId = getInputId(propertyName)
-  .mb-3(class=(errors[propertyName] && 'has-danger'))
-    label(
-      for= inputId
-    )= propertyName
+  - const propertyErrors = _.get(errors, propertyName)
+  - const classLine      = 'form-control' + (_.isEmpty(propertyErrors) ? '' : ' is-invalid')
+  - const inputId        = getInputId(propertyName)
+  .mb-3(class=(propertyErrors && 'has-danger'))
+    label(for=inputId)= t(`views.users.fields.${propertyName}`)
     input(
-      id= inputId
+      id=inputId
       name=getInputName(propertyName)
       class=classLine
       value=_.get(entity, propertyName, '')
@@ -27,5 +25,6 @@ mixin submit(form = null)
 
 mixin buttonTo(action, method)
   form(action=action, method="post")
-    input(name="_method" type="hidden" value=method)
-    input(type='submit')&attributes(attributes)
+    input(type="hidden" name="_method" value=method)
+    button(type="submit")&attributes(attributes)
+      block

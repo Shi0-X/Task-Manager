@@ -1,21 +1,34 @@
 extends ../layouts/application.pug
 
-block header
-  h1= t('layouts.application.users')
-
 block content
-  if users.length
-    table.table.table-striped
-      thead
+  //–– Sólo mostramos "Register" si NO hay sesión activa
+  if !isAuthenticated()
+    a.btn.btn-primary.mb-3(href=route('newUser'))= t('views.users.new.signUp')
+
+  table.table.table-striped
+    thead
+      tr
+        th= t('views.users.id')
+        th= t('views.users.firstName')
+        th= t('views.users.lastName')
+        th= t('views.users.email')
+        th= t('views.users.createdAt')
+        th.text-center= t('views.users.actions.header')
+    tbody
+      each user in users
         tr
-          th= t('views.users.id')
-          th= t('views.users.email')
-          th= t('views.users.createdAt')
-      tbody
-        each u in users
-          tr
-            td= u.id
-            td= u.email
-            td= formatDate(u.createdAt)
-  else
-    p.text-muted No users yet.
+          td= user.id
+          td= user.firstName
+          td= user.lastName
+          td= user.email
+          td= formatDate(user.createdAt)
+          td.text-center
+            //–– Acciones sólo con sesión iniciada y solo para el propio usuario
+            if isAuthenticated() && currentUser && Number(currentUser.id) === Number(user.id)
+              a.btn.btn-sm.btn-secondary.mx-1(href=route('editUser', { id: user.id }))
+                = t('views.users.actions.edit')
+              
+              form(action=route('deleteUser', { id: user.id }) method='post' style='display: inline-block')
+                input(name='_method' type='hidden' value='DELETE')
+                button.btn.btn-sm.btn-danger.mx-1(type='submit')
+                  = t('views.users.actions.delete')

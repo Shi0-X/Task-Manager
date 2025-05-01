@@ -1,9 +1,14 @@
+// server/routes/index.js
 // @ts-check
 
 import welcome from './welcome.js';
 import users from './users.js';
-import sessions from './session.js'; // Asegúrate de que el nombre del archivo sea "session.js"
+import session from './session.js';
 
-const controllers = [welcome, users, sessions];
+const controllers = [
+  welcome,
+  users,
+  session,
+];
 
-export default (app) => controllers.forEach((controller) => controller(app));
+export default (app) => controllers.forEach((f) => f(app));

@@ -1,24 +1,10 @@
 extends ../layouts/application.pug
 
 block header
-  | #{t('views.session.new.signIn')}
+  = t('views.session.new.signIn')
 
 block content
-  .row.justify-content-center
-    .col-md-6
-      form(method="POST" action="/session")
-        .mb-3
-          label.form-label(for="data_email")= t('views.session.new.email')
-          input#data_email.form-control(
-            type="email",
-            name="data[email]",
-            required
-          )
-        .mb-3
-          label.form-label(for="data_password")= t('views.session.new.password')
-          input#data_password.form-control(
-            type="password",
-            name="data[password]",
-            required
-          )
-        button.btn.btn-primary(type="submit")= t('views.session.new.submit')
+  +formFor()(action=route('session') method='post')
+    +input(signInForm, 'email', errors)(type="text")
+    +input(signInForm, 'password')(type="password")
+    +submit(signInForm)(value=t('views.session.new.submit'))

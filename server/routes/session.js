@@ -1,38 +1,33 @@
-// server/routes/session.js
 // @ts-check
 
 import i18next from 'i18next';
 
 export default (app) => {
-  // Mostrar formulario de login
-  app.get(
-    '/session/new',
-    { name: 'newSession' },
-    (req, reply) => {
-      return reply.render('session/new', { signInForm: {} });
-    },
-  );
-
-  // Procesar login real
-  app.post(
-    '/session',
-    { name: 'session', preValidation: app.authenticate },
-    (req, reply) => {
+  app
+    .get('/session/new', { name: 'newSession' }, (req, reply) => {
+      const signInForm = {};
+      reply.render('session/new', { signInForm });
+    })
+    .post('/session', { name: 'session' }, app.fp.authenticate('form', async (req, reply, err, user) => {
+      if (err) {
+        return app.httpErrors.internalServerError(err);
+      }
+      if (!user) {
+        const signInForm = req.body.data;
+        const errors = {
+          email: [{ message: i18next.t('flash.session.create.error') }],
+        };
+        reply.render('session/new', { signInForm, errors });
+        return reply;
+      }
+      await req.logIn(user);
       req.flash('success', i18next.t('flash.session.create.success'));
-      // Redirigimos a la raíz tras un login exitoso
-      return reply.redirect('/');
-    },
-  );
-
-  // Cerrar sesión
-  app.delete(
-    '/session',
-    { name: 'sessionDelete' },
-    (req, reply) => {
-      req.logout();
+      reply.redirect(app.reverse('root'));
+      return reply;
+    }))
+    .delete('/session', (req, reply) => {
+      req.logOut();
       req.flash('info', i18next.t('flash.session.delete.success'));
-      // Redirigimos a la raíz tras el logout
-      return reply.redirect('/');
-    },
-  );
+      reply.redirect(app.reverse('root'));
+    });
 };

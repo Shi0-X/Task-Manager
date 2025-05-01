@@ -1,0 +1,18 @@
+extends ../layouts/application.pug
+
+block header
+  = t('views.users.edit.title')
+
+block content
+  +formFor(user)(action=route('updateUser', { id: user.id }) method='post')
+    //- override para PATCH
+    input(type='hidden' name='_method' value='PATCH')
+    +input(user, 'firstName', errors)(type='text' placeholder=t('views.users.fields.firstName') required)
+    +input(user, 'lastName',  errors)(type='text' placeholder=t('views.users.fields.lastName') required)
+    +input(user, 'email',     errors)(type='email' placeholder=t('views.users.fields.email') required)
+    
+    //- Password no es requerido para actualización, si se deja vacío se mantiene el actual
+    +input(user, 'password',  errors)(type='password' placeholder=t('views.users.fields.password'))
+    
+    .form-group
+      +submit(user)(value=t('views.users.edit.submit') class='btn btn-primary')
