@@ -1,37 +1,42 @@
-# Makefile (cross-platform)
+# Makefile
 
-# Default shell for make (use node for scripting)
-SHELL := "$(shell which node)"
+SHELL := cmd.exe
 
-setup: prepare install db-migrate
+# 1) Preparar el entorno: copiar .env.example → .env si no existe
+prepare:
+	@node -e "const fs = require('fs'); if (!fs.existsSync('.env')) fs.copyFileSync('.env.example', '.env');"
 
+# 2) Instalar dependencias
 install:
 	npm install
 
-# Run database migrations
+# 3) Ejecutar migraciones de la base de datos
 db-migrate:
 	npx knex migrate:latest --knexfile knexfile.js
 
-# Build assets
+# Tarea que engloba los pasos de preparación, instalación y migración
+setup: prepare install db-migrate
+
+# 4) Compilar los assets con Webpack
 build:
 	npm run build
 
-# Prepare environment file (cross-platform)
-prepare:
-	node -e "const fs = require('fs'); if (!fs.existsSync('.env')) fs.copyFileSync('.env.example', '.env');"
-
-# Start backend and frontend (adjust as needed)
+# 5) Levantar la aplicación
 start:
 	npm start
 
-start-backend:
-	npm run dev
+# 6) Levantar sólo el backend con watch (requiere script apropiado en package.json)
+watch-backend:
+	npm run start -- --watch --verbose-watch --ignore-watch="node_modules .git .sqlite"
 
-start-frontend:
-	npm run build -- --watch
+# 7) Levantar sólo el frontend con watch
+watch-frontend:
+	npx webpack --watch --progress
 
+# 8) Lint
 lint:
-	npm run lint
+	npx eslint .
 
+# 9) Tests
 test:
 	npm test -s
