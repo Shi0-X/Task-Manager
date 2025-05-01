@@ -7,12 +7,12 @@
    "engines": {
       "node": ">=16.x"
    },
- "scripts": {
-    "prebuild": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
-    "build": "webpack",
-    "start": "fastify start server/plugin.js -l debug -P -o",
-    "test": "cross-env NODE_ENV=test SQLITE_MEMORY=true jest --verbose --runInBand"
-  },
+   "scripts": {
+      "prebuild": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+      "build": "webpack",
+      "start": "fastify start server/plugin.js -l debug -P -o",
+      "test": "cross-env NODE_ENV=test SQLITE_MEMORY=true jest --verbose --runInBand"
+   },
    "jest": {
       "modulePathIgnorePatterns": [
          "<rootDir>/__tests__/helpers/"
@@ -54,6 +54,7 @@
       "npm-check-updates": "^16.0.5",
       "objection": "^3.0.1",
       "objection-unique": "^1.2.2",
+      "pg": "^8.15.6",
       "pino-pretty": "^9.0.1",
       "pug": "^3.0.2",
       "qs": "^6.11.0",
