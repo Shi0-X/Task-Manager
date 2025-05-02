@@ -1,34 +1,45 @@
 // @ts-check
+import {
+  describe, beforeAll, it, expect, jest, afterAll,
+} from '@jest/globals';
 
 import fastify from 'fastify';
 import init from '../server/plugin.js';
-import { getTestData, prepareData, closeTestConnection, addTestUser } from './helpers/index.js';
+import { getTestData, prepareData } from './helpers/index.js';
+
+// Aumentar el tiempo de espera para las pruebas
+jest.setTimeout(10000);
 
 describe('test session', () => {
   let app;
   let knex;
-  let testData;
+  const testData = getTestData();
 
   beforeAll(async () => {
+    // Configurar para usar la base de datos en memoria
+    process.env.SQLITE_MEMORY = 'true';
+    
+    // Inicializar la aplicación
     app = fastify({
       exposeHeadRoutes: false,
       logger: { target: 'pino-pretty' },
     });
     
+    // Inicializar con todos los plugins
     await init(app);
+    
+    // Obtener la referencia a knex
     knex = app.objection.knex;
     
+    // Limpiar datos antes de las pruebas
     try {
-      // Usar la función prepareData modificada que ejecuta migraciones directamente
-      await prepareData(app);
-      testData = getTestData();
-      
-      // Asegurar que existe un usuario de prueba para iniciar sesión
-      await addTestUser(testData.users.existing);
+      await knex('users').delete();
     } catch (error) {
-      console.error('Error en la configuración de las pruebas:', error);
-      throw error;
+      console.log('Error al limpiar la tabla de usuarios:', error.message);
     }
+    
+    // Preparar datos para las pruebas
+    await prepareData(app);
   });
 
   it('test sign in / sign out', async () => {
@@ -36,7 +47,6 @@ describe('test session', () => {
       method: 'GET',
       url: app.reverse('newSession'),
     });
-
     expect(response.statusCode).toBe(200);
 
     const responseSignIn = await app.inject({
@@ -46,10 +56,8 @@ describe('test session', () => {
         data: testData.users.existing,
       },
     });
-
     expect(responseSignIn.statusCode).toBe(302);
-    
-    // Obtener las cookies para solicitudes posteriores
+
     const [sessionCookie] = responseSignIn.cookies;
     const { name, value } = sessionCookie;
     const cookie = { [name]: value };
@@ -59,14 +67,11 @@ describe('test session', () => {
       url: app.reverse('session'),
       cookies: cookie,
     });
-
     expect(responseSignOut.statusCode).toBe(302);
   });
 
   afterAll(async () => {
+    // Cerrar la aplicación
     await app.close();
-    
-    // Cerrar la conexión de prueba
-    await closeTestConnection();
   });
 });

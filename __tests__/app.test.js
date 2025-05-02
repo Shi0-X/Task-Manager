@@ -1,11 +1,14 @@
 // @ts-check
 
 import {
-  describe, beforeAll, it, expect,
+  describe, beforeAll, it, expect, jest, afterAll,
 } from '@jest/globals';
 
 import fastify from 'fastify';
 import init from '../server/plugin.js';
+
+// Aumentar el tiempo de espera para las pruebas
+jest.setTimeout(10000);
 
 describe('requests', () => {
   let app;

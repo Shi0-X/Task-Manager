@@ -14,11 +14,21 @@
       "test": "cross-env NODE_ENV=test SQLITE_MEMORY=true jest --verbose --runInBand"
    },
    "jest": {
+      "testEnvironment": "jsdom",
       "modulePathIgnorePatterns": [
          "<rootDir>/__tests__/helpers/"
       ],
       "setupFiles": [
-         "dotenv/config"
+         "dotenv/config",
+         "<rootDir>/jest.setup.js"
+      ],
+      "moduleNameMapper": {
+         "\\.(css|less|sass|scss)$": "identity-obj-proxy",
+         "bootstrap/dist/js/bootstrap.bundle.min.js": "<rootDir>/node_modules/identity-obj-proxy",
+         "bootstrap": "<rootDir>/node_modules/identity-obj-proxy"
+      },
+      "transformIgnorePatterns": [
+         "/node_modules/(?!bootstrap)"
       ]
    },
    "author": "Stanislav Dzisiak",
@@ -74,8 +84,10 @@
       "eslint-config-airbnb-base": "^15.0.0",
       "eslint-plugin-import": "^2.26.0",
       "eslint-plugin-jest": "^26.8.7",
+      "identity-obj-proxy": "^3.0.0",
       "jest": "^28.1.3",
       "jest-cli": "^28.1.3",
+      "jest-environment-jsdom": "^28.1.3",
       "pino-pretty": "^9.0.1",
       "style-loader": "^3.3.1",
       "webpack-cli": "^4.10.0"
