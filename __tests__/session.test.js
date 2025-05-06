@@ -1,14 +1,11 @@
 // @ts-check
 import {
-  describe, beforeAll, it, expect, jest, afterAll,
+  describe, beforeAll, it, expect, afterAll,
 } from '@jest/globals';
 
 import fastify from 'fastify';
 import init from '../server/plugin.js';
 import { getTestData, prepareData } from './helpers/index.js';
-
-// Aumentar el tiempo de espera para las pruebas
-jest.setTimeout(10000);
 
 describe('test session', () => {
   let app;
@@ -16,30 +13,38 @@ describe('test session', () => {
   const testData = getTestData();
 
   beforeAll(async () => {
-    // Configurar para usar la base de datos en memoria
-    process.env.SQLITE_MEMORY = 'true';
-    
-    // Inicializar la aplicación
+    // Configuración simple, igual que app.test.js
     app = fastify({
       exposeHeadRoutes: false,
       logger: { target: 'pino-pretty' },
     });
     
-    // Inicializar con todos los plugins
     await init(app);
     
-    // Obtener la referencia a knex
     knex = app.objection.knex;
     
-    // Limpiar datos antes de las pruebas
-    try {
-      await knex('users').delete();
-    } catch (error) {
-      console.log('Error al limpiar la tabla de usuarios:', error.message);
-    }
+    // IMPORTANTE: No ejecutamos migraciones aquí
+    // En su lugar, confiamos en que el entorno de prueba ya tenga las tablas necesarias
     
-    // Preparar datos para las pruebas
-    await prepareData(app);
+    // Intenta crear la tabla users manualmente si no existe
+    try {
+      const hasTable = await knex.schema.hasTable('users');
+      if (!hasTable) {
+        await knex.schema.createTable('users', (table) => {
+          table.increments('id').primary();
+          table.string('first_name');
+          table.string('last_name');
+          table.string('email');
+          table.string('password_digest');
+          table.timestamps(true, true);
+        });
+      }
+      
+      // Preparar datos de prueba después de asegurarnos de que la tabla existe
+      await prepareData(app);
+    } catch (err) {
+      console.error('Error al configurar la base de datos:', err);
+    }
   });
 
   it('test sign in / sign out', async () => {
@@ -71,7 +76,6 @@ describe('test session', () => {
   });
 
   afterAll(async () => {
-    // Cerrar la aplicación
     await app.close();
   });
 });
