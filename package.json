@@ -10,6 +10,7 @@
    "scripts": {
       "prebuild": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
       "build": "webpack",
+      "migrate": "knex migrate:latest",
       "start": "fastify start server/plugin.js -l debug -P -o --address 0.0.0.0 --port $PORT",
       "test": "cross-env NODE_ENV=test SQLITE_MEMORY=true jest --verbose --runInBand"
    },
