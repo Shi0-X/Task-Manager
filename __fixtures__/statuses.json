@@ -1,0 +1,19 @@
+// __fixtures__/statuses.json
+[
+    {
+      "id": 1,
+      "name": "nuevo"
+    },
+    {
+      "id": 2,
+      "name": "en trabajo"
+    },
+    {
+      "id": 3,
+      "name": "en prueba"
+    },
+    {
+      "id": 4,
+      "name": "completado"
+    }
+  ]

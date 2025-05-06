@@ -1,0 +1,17 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4 Create status
+
+  +formFor()(action=route('createStatus') method='post')
+    .mb-3
+      label(for="data_name") Name
+      input(
+        id="data_name"
+        name="data[name]"
+        class="form-control"
+        value=status.name || ''
+      )
+    button(type="submit" class="btn btn-primary mt-3") Create
+  
+  a.btn.btn-outline-primary.mt-3(href=route('statuses')) Statuses

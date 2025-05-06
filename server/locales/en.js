@@ -2,94 +2,191 @@
 // @ts-check
 
 export default {
-  translation: {
-    appName: 'Fastify Boilerplate',
-
+translation: {
+    appName: 'Task Manager',
     flash: {
       session: {
         create: {
           success: 'You are logged in',
-          error: 'Wrong email or password',
+          error: 'Incorrect email or password',
         },
         delete: {
           success: 'You are logged out',
         },
       },
-      users: {
+      user: {
         create: {
-          success: 'User registered successfully',
           error: 'Failed to register',
+          success: 'User registered successfully',
         },
         edit: {
-          success: 'User updated successfully',
           error: 'Failed to update user',
+          success: 'User updated successfully',
         },
         delete: {
+          error: 'Failed to delete user',
           success: 'User deleted successfully',
         },
-        notFound: 'User not found',
-        authorization: {
-          error: 'You can only edit or delete your own account'
-        }
+        accessError: 'You cannot edit or delete another user',
       },
-      authError: 'Access denied! Please login',
+      statuses: {
+        create: {
+          error: 'Failed to create status',
+          success: 'Status created successfully',
+        },
+        edit: {
+          error: 'Failed to update status',
+          success: 'Status updated successfully',
+        },
+        delete: {
+          error: 'Failed to delete status',
+          success: 'Status deleted successfully',
+          hasTasks: 'Status is assigned to some tasks',
+        },
+      },
+      task: {
+        create: {
+          error: 'Failed to create task',
+          success: 'Task created successfully',
+        },
+        edit: {
+          error: 'Failed to update task',
+          success: 'Task updated successfully',
+        },
+        delete: {
+          error: 'Only the author can delete the task',
+          success: 'Task deleted successfully',
+        },
+      },
+      label: {
+        create: {
+          error: 'Failed to create label',
+          success: 'Label created successfully',
+        },
+        edit: {
+          error: 'Failed to update label',
+          success: 'Label updated successfully',
+        },
+        delete: {
+          error: 'Failed to delete label',
+          success: 'Label deleted successfully',
+        },
+      },
+      authError: 'Access denied! Please sign in.',
     },
-
     layouts: {
       application: {
         users: 'Users',
-        signIn: 'Login',
-        signUp: 'Register',
-        signOut: 'Logout',
-        home: 'Home',
-        menu: 'Menu',
+        signIn: 'Sign In',
+        signUp: 'Sign Up',
+        signOut: 'Sign Out',
+        statuses: 'Statuses',
+        labels: 'Labels',
+        tasks: 'Tasks',
       },
     },
-
     views: {
-      welcome: {
-        index: {
-          hello: 'Hello from Hexlet!',
-          description: 'Online programming school',
-          more: 'Learn more',
-        },
-      },
-
       session: {
         new: {
-          signIn: 'Login',
-          submit: 'Login',
+          signIn: 'Sign In',
+          submit: 'Submit',
         },
       },
-
-      users: {
+      user: {
         id: 'ID',
-        firstName: 'First Name',
-        lastName: 'Last Name',
         email: 'Email',
+        name: 'Full name',
+        firstName: 'First name',
+        lastName: 'Last name',
+        password: 'Password',
         createdAt: 'Created at',
-
         new: {
-          signUp: 'Register',
-          submit: 'Register',
+          submit: 'Save',
+          signUp: 'Sign Up',
         },
-
         edit: {
           title: 'Edit user',
           submit: 'Update',
         },
-
-        actions: {
-          header: 'Actions',
+        delete: {
+          submit: 'Delete',
+        },
+      },
+      taskStatus: {
+        id: 'ID',
+        name: 'Name',
+        createdAt: 'Created at',
+        actions: 'Actions',
+        buttons: {
+          new: 'Create status',
           edit: 'Edit',
           delete: 'Delete',
         },
-
-        fields: {
-          firstName: 'First name',
-          lastName:  'Last name',
-          email:     'Email',
-          password:  'Password',
+        new: {
+          submit: 'Create',
+          creating: 'Create status',
+          name: 'Name',
+        },
+        edit: {
+          submit: 'Update',
+          editing: 'Edit status',
+          name: 'Name',
+        },
+      },
+      label: {
+        create: 'Create label',
+        id: 'ID',
+        name: 'Name',
+        createdAt: 'Created at',
+        new: {
+          title: 'Create label',
+          submit: 'Create',
+        },
+        edit: {
+          title: 'Edit label',
+          submit: 'Update',
+        },
+        delete: {
+          submit: 'Delete',
+        },
+      },
+      task: {
+        create: 'Create task',
+        id: 'ID',
+        name: 'Name',
+        description: 'Description',
+        statusId: 'Status',
+        status: 'Status',
+        creatorId: 'Author',
+        creator: 'Author',
+        executorId: 'Executor',
+        executor: 'Executor',
+        labels: 'Labels',
+        createdAt: 'Created at',
+        new: {
+          title: 'Create task',
+          submit: 'Create',
+        },
+        edit: {
+          title: 'Edit task',
+          submit: 'Update',
+        },
+        delete: {
+          submit: 'Delete',
+        },
+        filter: {
+          status: 'Status',
+          executor: 'Executor',
+          label: 'Label',
+          isCreatorUser: 'Only my tasks',
+          submit: 'Show',
+        },
+      },
+      welcome: {
+        index: {
+          hello: 'Hello from Hexlet!',
+          description: 'Practical programming courses',
+          more: 'Learn More',
         },
       },
     },

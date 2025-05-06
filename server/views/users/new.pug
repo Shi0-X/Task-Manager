@@ -1,12 +1,46 @@
 extends ../layouts/application.pug
 
-block header
-  = t('views.users.new.signUp')
-
 block content
+  h1.my-4= t('views.user.new.signUp')
+
   +formFor()(action=route('users') method='post')
-    +input(user, 'firstName', errors)(type='text' placeholder=t('views.users.fields.firstName'))
-    +input(user, 'lastName',  errors)(type='text' placeholder=t('views.users.fields.lastName'))
-    +input(user, 'email',     errors)(type='text' placeholder=t('views.users.fields.email'))
-    +input(user, 'password',  errors)(type='password' placeholder=t('views.users.fields.password'))
-    +submit(user)(value=t('views.users.new.submit'))
+    .mb-3
+      label(for="data_firstName")= t('views.user.firstName')
+      input(
+        id="data_firstName"
+        name="data[firstName]"
+        class="form-control"
+        type="text"
+        value=user.firstName || ''
+        placeholder=t('views.user.firstName')
+      )
+    .mb-3
+      label(for="data_lastName")= t('views.user.lastName')
+      input(
+        id="data_lastName"
+        name="data[lastName]"
+        class="form-control"
+        type="text"
+        value=user.lastName || ''
+        placeholder=t('views.user.lastName')
+      )
+    .mb-3
+      label(for="data_email")= t('views.user.email')
+      input(
+        id="data_email"
+        name="data[email]"
+        class="form-control"
+        type="email"
+        value=user.email || ''
+        placeholder=t('views.user.email')
+      )
+    .mb-3
+      label(for="data_password")= t('views.user.password')
+      input(
+        id="data_password"
+        name="data[password]"
+        class="form-control"
+        type="password"
+        placeholder=t('views.user.password')
+      )
+    button.btn.btn-primary(type="submit")= t('views.user.new.submit')

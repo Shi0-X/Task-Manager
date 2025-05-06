@@ -1,18 +1,48 @@
 extends ../layouts/application.pug
 
-block header
-  = t('views.users.edit.title')
-
 block content
+  h1.my-4= t('views.user.edit.title')
+
   +formFor(user)(action=route('updateUser', { id: user.id }) method='post')
     //- override para PATCH
     input(type='hidden' name='_method' value='PATCH')
-    +input(user, 'firstName', errors)(type='text' placeholder=t('views.users.fields.firstName') required)
-    +input(user, 'lastName',  errors)(type='text' placeholder=t('views.users.fields.lastName') required)
-    +input(user, 'email',     errors)(type='email' placeholder=t('views.users.fields.email') required)
+    .mb-3
+      label(for="data_firstName")= t('views.user.firstName')
+      input(
+        id="data_firstName"
+        name="data[firstName]"
+        type="text"
+        class="form-control"
+        value=user.firstName || ''
+        required
+      )
+    .mb-3
+      label(for="data_lastName")= t('views.user.lastName')
+      input(
+        id="data_lastName"
+        name="data[lastName]"
+        type="text"
+        class="form-control"
+        value=user.lastName || ''
+        required
+      )
+    .mb-3
+      label(for="data_email")= t('views.user.email')
+      input(
+        id="data_email"
+        name="data[email]"
+        type="email"
+        class="form-control"
+        value=user.email || ''
+        required
+      )
+    .mb-3
+      label(for="data_password")= t('views.user.password')
+      input(
+        id="data_password"
+        name="data[password]"
+        type="password"
+        class="form-control"
+      )
     
-    //- Password no es requerido para actualización, si se deja vacío se mantiene el actual
-    +input(user, 'password',  errors)(type='password' placeholder=t('views.users.fields.password'))
-    
-    .form-group
-      +submit(user)(value=t('views.users.edit.submit') class='btn btn-primary')
+    button.btn.btn-primary(type="submit")= t('views.user.edit.submit')

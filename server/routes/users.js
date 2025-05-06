@@ -15,7 +15,7 @@ export default (app) => {
     // Si el usuario no está autenticado o el ID no coincide con el usuario actual
     if (!req.user || String(req.user.id) !== id) {
       console.log('Acceso denegado: El usuario no es propietario de este recurso');
-      req.flash('error', i18next.t('flash.users.authorization.error'));
+      req.flash('error', i18next.t('flash.user.accessError'));
       return reply.redirect(app.reverse('users'));
     }
     
@@ -70,7 +70,7 @@ export default (app) => {
         // Insertar el usuario en la base de datos
         await app.objection.models.user.query().insert(validUser);
         
-        req.flash('info', i18next.t('flash.users.create.success'));
+        req.flash('info', i18next.t('flash.user.create.success'));
         return reply.redirect(app.reverse('users'));
       } catch (err) {
         // Depuramos en consola con más detalles
@@ -84,7 +84,7 @@ export default (app) => {
         // Extraemos errores de validación si existen
         const validationErrors = err.data || {};
         
-        req.flash('error', i18next.t('flash.users.create.error'));
+        req.flash('error', i18next.t('flash.user.create.error'));
         return reply.render('users/new', { user, errors: validationErrors });
       }
     })
@@ -100,7 +100,7 @@ export default (app) => {
         const { id } = req.params;
         const user = await app.objection.models.user.query().findById(id);
         if (!user) {
-          req.flash('error', i18next.t('flash.users.notFound'));
+          req.flash('error', i18next.t('flash.user.notFound'));
           return reply.redirect(app.reverse('users'));
         }
         // Pasamos errors vacío
@@ -162,7 +162,7 @@ export default (app) => {
             .where('id', id)
             .update(updateData);
           
-          req.flash('info', i18next.t('flash.users.edit.success'));
+          req.flash('info', i18next.t('flash.user.edit.success'));
           return reply.redirect(app.reverse('users'));
         } catch (err) {
           console.error('Error al actualizar usuario:', err);
@@ -183,7 +183,7 @@ export default (app) => {
             validationErrors.email = [{ message: 'Este email ya está en uso' }];
           }
           
-          req.flash('error', i18next.t('flash.users.edit.error'));
+          req.flash('error', i18next.t('flash.user.edit.error'));
           return reply.render('users/edit', { user, errors: validationErrors });
         }
       }
@@ -206,11 +206,11 @@ export default (app) => {
           
           await app.objection.models.user.query().deleteById(id);
           
-          req.flash('info', i18next.t('flash.users.delete.success'));
+          req.flash('info', i18next.t('flash.user.delete.success'));
           return reply.redirect(app.reverse('users'));
         } catch (err) {
           console.error('Error al eliminar usuario:', err);
-          req.flash('error', i18next.t('flash.users.delete.error'));
+          req.flash('error', i18next.t('flash.user.delete.error'));
           return reply.redirect(app.reverse('users'));
         }
       }

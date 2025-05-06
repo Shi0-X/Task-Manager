@@ -1,0 +1,18 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4 Edit status
+
+  form(action=route('updateStatus', { id: status.id }) method="POST")
+    input(type="hidden" name="_method" value="PATCH")
+    .mb-3
+      label(for="data_name") Name
+      input(
+        id="data_name"
+        name="data[name]"
+        class="form-control"
+        value=status.name || ''
+      )
+    button(type="submit" class="btn btn-primary mt-3") Update
+  
+  a.btn.btn-outline-primary.mt-3(href=route('statuses')) Back to statuses

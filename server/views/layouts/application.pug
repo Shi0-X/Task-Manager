@@ -1,4 +1,3 @@
-// server/views/layouts/application.pug
 include ../mixins/forms.pug
 
 doctype html
@@ -29,9 +28,11 @@ html(lang="en")
         .navbar-collapse.offcanvas-collapse#navbarsExampleDefault
           ul.navbar-nav.me-auto.mb-2.mb-lg-0
             li.nav-item
-              a.nav-link.active(aria-current="page" href=route('root'))= t('layouts.application.home')
-            li.nav-item
               a.nav-link(href=route('users'))= t('layouts.application.users')
+            // Añadimos el enlace a los estados aquí
+            li.nav-item
+              a.nav-link(href=route('statuses'))= t('layouts.application.statuses')
+
           if !isAuthenticated()
             ul.navbar-nav
               li.nav-item

@@ -1,3 +1,4 @@
+// server/routes/session.js
 // @ts-check
 
 import i18next from 'i18next';
