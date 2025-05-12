@@ -1,0 +1,39 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4= t('views.task.edit.title')
+  
+  form(action=route('updateTask', { id: task.id }) method='post')
+    input(name='_method' type='hidden' value='PATCH')
+    
+    .form-group.mb-3
+      label(for='data_name')= t('views.task.name')
+      input#data_name.form-control(type='text' name='data[name]' value=task.name required)
+    
+    .form-group.mb-3
+      label(for='data_description')= t('views.task.description')
+      textarea#data_description.form-control(name='data[description]' rows='3')= task.description
+    
+    .form-group.mb-3
+      label(for='data_statusId')= t('views.task.status')
+      select#data_statusId.form-control(name='data[statusId]' required)
+        option(value='')= t('views.task.select.default')
+        each status in statuses
+          option(value=status.id selected=(status.id === task.statusId))= status.name
+    
+    .form-group.mb-3
+      label(for='data_executorId')= t('views.task.executor')
+      select#data_executorId.form-control(name='data[executorId]')
+        option(value='')= t('views.task.select.default')
+        each user in users
+          option(value=user.id selected=(user.id === task.executorId))= user.firstName + ' ' + user.lastName
+    
+    button.btn.btn-primary(type='submit')= t('views.task.edit.submit')
+  
+  .d-flex.mt-3
+    if currentUser && currentUser.id === task.creatorId
+      form(action=route('deleteTask', { id: task.id }) method='post')
+        input(name='_method' type='hidden' value='DELETE')
+        button.btn.btn-sm.btn-danger(type='submit')= t('views.task.delete.submit')
+    
+    a.btn.btn-outline-primary.ms-auto(href=route('tasks'))= t('views.task.back')

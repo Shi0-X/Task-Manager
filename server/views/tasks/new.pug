@@ -1,0 +1,31 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4= t('views.task.new.title')
+  
+  form(action=route('createTask') method='post')
+    .form-group.mb-3
+      label(for='data_name')= t('views.task.name')
+      input#data_name.form-control(type='text' name='data[name]' value=task.name || '' required)
+    
+    .form-group.mb-3
+      label(for='data_description')= t('views.task.description')
+      textarea#data_description.form-control(name='data[description]' rows='3')= task.description || ''
+    
+    .form-group.mb-3
+      label(for='data_statusId')= t('views.task.status')
+      select#data_statusId.form-control(name='data[statusId]' required)
+        option(value='')= t('views.task.select.default')
+        each status in statuses
+          option(value=status.id selected=(task.statusId === status.id))= status.name
+    
+    .form-group.mb-3
+      label(for='data_executorId')= t('views.task.executor')
+      select#data_executorId.form-control(name='data[executorId]')
+        option(value='')= t('views.task.select.default')
+        each user in users
+          option(value=user.id selected=(task.executorId === user.id))= user.firstName + ' ' + user.lastName
+    
+    button.btn.btn-primary(type='submit')= t('views.task.new.submit')
+  
+  a.btn.btn-outline-primary.mt-3(href=route('tasks'))= t('views.task.back')

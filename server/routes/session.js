@@ -7,7 +7,7 @@ export default (app) => {
   app
     .get('/session/new', { name: 'newSession' }, (req, reply) => {
       const signInForm = {};
-      reply.render('session/new', { signInForm });
+      reply.render('session/new', { signInForm, errors: {} });
     })
     .post('/session', { name: 'session' }, app.fp.authenticate('form', async (req, reply, err, user) => {
       if (err) {

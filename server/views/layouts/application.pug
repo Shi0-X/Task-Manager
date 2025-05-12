@@ -32,6 +32,9 @@ html(lang="en")
             // Añadimos el enlace a los estados aquí
             li.nav-item
               a.nav-link(href=route('statuses'))= t('layouts.application.statuses')
+            // Enlace a tareas
+            li.nav-item
+              a.nav-link(href=route('tasks'))= t('layouts.application.tasks')
 
           if !isAuthenticated()
             ul.navbar-nav

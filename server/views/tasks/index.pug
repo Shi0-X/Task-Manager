@@ -1,0 +1,37 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4= t('views.task.list.title')
+  
+  if isAuthenticated()
+    a.btn.btn-primary.mb-4(href=route('newTask'))= t('views.task.create')
+  
+  table.table.table-striped
+    thead
+      tr
+        th= t('views.task.id')
+        th= t('views.task.name')
+        th= t('views.task.status')
+        th= t('views.task.creator')
+        th= t('views.task.executor')
+        th= t('views.task.createdAt')
+        if isAuthenticated()
+          th.text-center= t('views.task.actions')
+    tbody
+      each task in tasks
+        tr
+          td= task.id
+          td
+            a(href=route('showTask', { id: task.id }))= task.name
+          td= task.status ? task.status.name : ''
+          td= task.creator ? task.creator.firstName + ' ' + task.creator.lastName : ''
+          td= task.executor ? task.executor.firstName + ' ' + task.executor.lastName : ''
+          td= formatDate(task.createdAt)
+          if isAuthenticated()
+            td.text-center
+              a.btn.btn-sm.btn-secondary.me-1(href=route('editTask', { id: task.id }))
+                = t('views.task.edit.link')
+              if currentUser && currentUser.id === task.creatorId
+                form.d-inline-block(action=route('postDeleteTask', { id: task.id }) method='post')
+                  input(name='_method' type='hidden' value='DELETE')
+                  button.btn.btn-sm.btn-danger(type='submit')= t('views.task.delete.submit')

@@ -1,0 +1,42 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4= task.name
+  
+  .row.mb-3
+    .col-md-6
+      .card
+        .card-header= t('views.task.info')
+        .card-body
+          p
+            strong= t('views.task.id') + ': '
+            = task.id
+          p
+            strong= t('views.task.name') + ': '
+            = task.name
+          p
+            strong= t('views.task.status') + ': '
+            = task.status ? task.status.name : ''
+          p
+            strong= t('views.task.description') + ': '
+            = task.description || ''
+          p
+            strong= t('views.task.creator') + ': '
+            = task.creator ? task.creator.firstName + ' ' + task.creator.lastName : ''
+          p
+            strong= t('views.task.executor') + ': '
+            = task.executor ? task.executor.firstName + ' ' + task.executor.lastName : ''
+          p
+            strong= t('views.task.createdAt') + ': '
+            = formatDate(task.createdAt)
+  
+  .d-flex
+    if isAuthenticated()
+      a.btn.btn-primary.me-2(href=route('editTask', { id: task.id }))
+        = t('views.task.edit.link')
+      if currentUser && currentUser.id === task.creatorId
+        form(action=route('deleteTask', { id: task.id }) method='post')
+          input(name='_method' type='hidden' value='DELETE')
+          button.btn.btn-danger(type='submit')= t('views.task.delete.submit')
+  
+    a.btn.btn-outline-primary.ms-auto(href=route('tasks'))= t('views.task.back')

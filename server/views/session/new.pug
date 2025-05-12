@@ -3,7 +3,7 @@ extends ../layouts/application.pug
 block content
   h1.my-4= t('views.session.new.signIn')
 
-  +formFor()(action=route('session') method='post')
+  form(action=route('session') method='post')
     .mb-3
       label(for="data_email")= t('views.user.email')
       input(
@@ -11,8 +11,11 @@ block content
         name="data[email]"
         class="form-control"
         type="email"
-        value=signInForm.email || ''
+        value=signInForm && signInForm.email ? signInForm.email : ''
       )
+      if errors && errors.email
+        .invalid-feedback.d-block= errors.email[0].message
+        
     .mb-3
       label(for="data_password")= t('views.user.password')
       input(
@@ -21,4 +24,5 @@ block content
         class="form-control"
         type="password"
       )
-    button.btn.btn-primary(type="submit")= t('views.session.new.submit')
+      
+    button.btn.btn-primary.mt-3(type="submit")= t('views.session.new.submit')

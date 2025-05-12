@@ -2,6 +2,7 @@
 // @ts-check
 
 import BaseModel from './BaseModel.cjs';
+import { Model } from 'objection';
 
 export default class TaskStatus extends BaseModel {
   static get tableName() {
@@ -17,6 +18,22 @@ export default class TaskStatus extends BaseModel {
         name: { type: 'string', minLength: 1 },
         createdAt: { type: 'string' },
         updatedAt: { type: 'string' },
+      },
+    };
+  }
+
+  // Las relaciones deben definirse de manera que eviten dependencias circulares
+  static get relationMappings() {
+    // Definimos las relaciones dentro de la función para cargar Task dinámicamente
+    return {
+      tasks: {
+        relation: Model.HasManyRelation,
+        // Referenciamos al nombre de la clase en lugar de importar
+        modelClass: 'Task',
+        join: {
+          from: 'statuses.id',
+          to: 'tasks.statusId',
+        },
       },
     };
   }

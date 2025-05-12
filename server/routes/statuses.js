@@ -121,6 +121,18 @@ export default (app) => {
           return reply;
         }
         
+        // NUEVO: Verificar si hay tareas usando este estado
+        const tasksWithStatus = await app.objection.models.task.query()
+          .where('statusId', id)
+          .first();
+        
+        if (tasksWithStatus) {
+          console.log('No se puede eliminar estado, hay tareas asociadas:', tasksWithStatus);
+          req.flash('error', i18next.t('flash.statuses.delete.hasTasks'));
+          reply.redirect(app.reverse('statuses'));
+          return reply;
+        }
+        
         console.log('Estado encontrado para eliminar:', status);
         
         // Intentar eliminar el estado

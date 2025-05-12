@@ -18,8 +18,9 @@ export const getTestData = () => getFixtureData('testData.json');
 export const prepareData = async (app) => {
   const { knex } = app.objection;
 
+  // Solo insertar los usuarios, como lo hacía originalmente
   await knex('users').insert(getFixtureData('users.json'));
-  // Inserta otros datos de prueba si los tienes (statuses, tasks, labels, etc.)
+  // NO agregar estados ni tareas aquí para mantener la compatibilidad
 };
 
 export const signIn = async (app, data) => {

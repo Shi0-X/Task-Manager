@@ -2,7 +2,7 @@
 // @ts-check
 
 export default {
-translation: {
+  translation: {
     appName: 'Task Manager',
     flash: {
       session: {
@@ -26,6 +26,7 @@ translation: {
         delete: {
           error: 'Failed to delete user',
           success: 'User deleted successfully',
+          hasTasks: 'User has associated tasks',
         },
         accessError: 'You cannot edit or delete another user',
       },
@@ -57,6 +58,9 @@ translation: {
           error: 'Only the author can delete the task',
           success: 'Task deleted successfully',
         },
+        view: {
+          error: 'Task not found',
+        },
       },
       label: {
         create: {
@@ -83,6 +87,7 @@ translation: {
         statuses: 'Statuses',
         labels: 'Labels',
         tasks: 'Tasks',
+        home: 'Home',
       },
     },
     views: {
@@ -110,6 +115,11 @@ translation: {
         },
         delete: {
           submit: 'Delete',
+        },
+        actions: {
+          header: 'Actions',
+          edit: 'Edit',
+          delete: 'Delete',
         },
       },
       taskStatus: {
@@ -151,6 +161,9 @@ translation: {
         },
       },
       task: {
+        list: {
+          title: 'Tasks',
+        },
         create: 'Create task',
         id: 'ID',
         name: 'Name',
@@ -163,6 +176,12 @@ translation: {
         executor: 'Executor',
         labels: 'Labels',
         createdAt: 'Created at',
+        actions: 'Actions',
+        info: 'Task information',
+        back: 'Back to tasks',
+        select: {
+          default: 'Select...',
+        },
         new: {
           title: 'Create task',
           submit: 'Create',
@@ -170,6 +189,7 @@ translation: {
         edit: {
           title: 'Edit task',
           submit: 'Update',
+          link: 'Edit',
         },
         delete: {
           submit: 'Delete',

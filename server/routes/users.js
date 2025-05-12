@@ -199,6 +199,21 @@ export default (app) => {
       async (req, reply) => {
         const { id } = req.params;
         try {
+          // NUEVO: Verificar si el usuario tiene tareas creadas o asignadas
+          const tasksCreated = await app.objection.models.task.query()
+            .where('creatorId', id)
+            .first();
+          
+          const tasksAssigned = await app.objection.models.task.query()
+            .where('executorId', id)
+            .first();
+          
+          if (tasksCreated || tasksAssigned) {
+            console.log('No se puede eliminar usuario, tiene tareas relacionadas');
+            req.flash('error', i18next.t('flash.user.delete.hasTasks'));
+            return reply.redirect(app.reverse('users'));
+          }
+          
           // Si el usuario se está borrando a sí mismo, salimos de sesión primero
           if (req.user && String(req.user.id) === id) {
             await req.logOut();
