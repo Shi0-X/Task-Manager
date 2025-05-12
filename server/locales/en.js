@@ -1,4 +1,3 @@
-// locales/en.js
 // @ts-check
 
 export default {
@@ -72,7 +71,7 @@ export default {
           success: 'Label updated successfully',
         },
         delete: {
-          error: 'Failed to delete label',
+          error: 'Cannot delete label as it is assigned to tasks',
           success: 'Label deleted successfully',
         },
       },
@@ -148,6 +147,8 @@ export default {
         id: 'ID',
         name: 'Name',
         createdAt: 'Created at',
+        actions: 'Actions',
+        back: 'Back to labels',
         new: {
           title: 'Create label',
           submit: 'Create',
@@ -155,6 +156,7 @@ export default {
         edit: {
           title: 'Edit label',
           submit: 'Update',
+          link: 'Edit',
         },
         delete: {
           submit: 'Delete',

@@ -1,0 +1,22 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4= t('views.label.new.title')
+  
+  //- Información de depuración
+  .alert.alert-info.mb-3
+    h5 Debug Info (Eliminar después)
+    pre.
+      label: #{JSON.stringify(label || {}, null, 2)}
+      errors: #{JSON.stringify(errors || {}, null, 2)}
+  
+  form(action=route('createLabel') method='post')
+    .form-group.mb-3
+      label(for='data_name')= t('views.label.name')
+      input#data_name.form-control(type='text' name='data[name]' value=label && label.name || '')
+      if errors && errors.name
+        .invalid-feedback.d-block= errors.name[0].message
+    
+    button.btn.btn-primary(type='submit')= t('views.label.new.submit')
+  
+  a.btn.btn-outline-primary.mt-3(href=route('labels'))= t('views.label.back')

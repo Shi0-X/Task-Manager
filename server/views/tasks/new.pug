@@ -26,6 +26,12 @@ block content
         each user in users
           option(value=user.id selected=(task.executorId === user.id))= user.firstName + ' ' + user.lastName
     
+    .form-group.mb-3
+      label(for='data_labels')= t('views.task.labels')
+      select#data_labels.form-control(name='data[labels]' multiple)
+        each label in labels
+          option(value=label.id)= label.name
+    
     button.btn.btn-primary(type='submit')= t('views.task.new.submit')
   
   a.btn.btn-outline-primary.mt-3(href=route('tasks'))= t('views.task.back')

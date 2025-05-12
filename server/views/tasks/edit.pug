@@ -28,6 +28,13 @@ block content
         each user in users
           option(value=user.id selected=(user.id === task.executorId))= user.firstName + ' ' + user.lastName
     
+    .form-group.mb-3
+      label(for='data_labels')= t('views.task.labels')
+      select#data_labels.form-control(name='data[labels]' multiple)
+        each label in labels
+          - const isSelected = task.labels && task.labels.some(l => l.id === label.id)
+          option(value=label.id selected=isSelected)= label.name
+    
     button.btn.btn-primary(type='submit')= t('views.task.edit.submit')
   
   .d-flex.mt-3

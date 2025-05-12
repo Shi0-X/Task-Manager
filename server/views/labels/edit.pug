@@ -1,0 +1,15 @@
+extends ../layouts/application.pug
+
+block content
+  h1.my-4= t('views.label.edit.title')
+  
+  form(action=route('updateLabel', { id: label.id }) method='post')
+    input(name='_method' type='hidden' value='PATCH')
+    
+    .form-group.mb-3
+      label(for='data_name')= t('views.label.name')
+      input#data_name.form-control(type='text' name='data[name]' value=label.name)
+    
+    button.btn.btn-primary(type='submit')= t('views.label.edit.submit')
+  
+  a.btn.btn-outline-primary.mt-3(href=route('labels'))= t('views.label.back')

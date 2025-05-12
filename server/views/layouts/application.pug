@@ -35,6 +35,9 @@ html(lang="en")
             // Enlace a tareas
             li.nav-item
               a.nav-link(href=route('tasks'))= t('layouts.application.tasks')
+            // Enlace a etiquetas
+            li.nav-item
+              a.nav-link(href=route('labels'))= t('layouts.application.labels')
 
           if !isAuthenticated()
             ul.navbar-nav

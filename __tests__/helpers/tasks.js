@@ -32,13 +32,52 @@ export const prepareTaskData = async (app) => {
       });
     }
     
-    // Insertar datos de prueba
-    await knex('statuses').insert([
-      { id: 1, name: 'nuevo' },
-      { id: 2, name: 'en trabajo' },
-      { id: 3, name: 'en prueba' },
-      { id: 4, name: 'completado' }
-    ]);
+    // Verificar/crear tabla labels
+    const hasLabelsTable = await knex.schema.hasTable('labels');
+    if (!hasLabelsTable) {
+      await knex.schema.createTable('labels', (table) => {
+        table.increments('id').primary();
+        table.string('name');
+        table.timestamps(true, true);
+      });
+    }
+    
+    // Verificar/crear tabla tasks_labels
+    const hasTasksLabelsTable = await knex.schema.hasTable('tasks_labels');
+    if (!hasTasksLabelsTable) {
+      await knex.schema.createTable('tasks_labels', (table) => {
+        table.increments('id').primary();
+        table.integer('task_id').references('id').inTable('tasks');
+        table.integer('label_id').references('id').inTable('labels');
+        table.unique(['task_id', 'label_id']);
+        table.timestamps(true, true);
+      });
+    }
+    
+    // Insertar datos de prueba para estados
+    try {
+      await knex('statuses').insert([
+        { id: 1, name: 'nuevo' },
+        { id: 2, name: 'en trabajo' },
+        { id: 3, name: 'en prueba' },
+        { id: 4, name: 'completado' }
+      ]);
+    } catch (err) {
+      // Ignorar errores de duplicación
+      console.log('Nota: Es posible que los estados ya existan');
+    }
+    
+    // Insertar datos de prueba para etiquetas
+    try {
+      await knex('labels').insert([
+        { id: 1, name: 'bug' },
+        { id: 2, name: 'feature' },
+        { id: 3, name: 'documentation' }
+      ]);
+    } catch (err) {
+      // Ignorar errores de duplicación
+      console.log('Nota: Es posible que las etiquetas ya existan');
+    }
   } catch (error) {
     console.warn('Error al preparar datos de tareas:', error.message);
     // No lanzar el error, para permitir que las pruebas continúen

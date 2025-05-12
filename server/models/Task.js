@@ -118,6 +118,19 @@ export default class Task extends BaseModel {
           to: 'users.id',
         },
       },
+      // NUEVA RELACIÓN: Muchos a muchos con etiquetas
+      labels: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Label,
+        join: {
+          from: 'tasks.id',
+          through: {
+            from: 'tasks_labels.taskId',
+            to: 'tasks_labels.labelId',
+          },
+          to: 'labels.id',
+        },
+      },
     };
   }
 }
@@ -125,3 +138,4 @@ export default class Task extends BaseModel {
 // Importaciones al final para evitar dependencias circulares
 import TaskStatus from './TaskStatus.js';
 import User from './User.cjs';
+import Label from './Label.js';
