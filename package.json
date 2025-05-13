@@ -12,7 +12,10 @@
       "build": "webpack --mode=production",
       "migrate": "knex migrate:latest",
       "start": "fastify start server/plugin.js -l debug -P -o --address 0.0.0.0 --port $PORT",
-      "test": "cross-env NODE_ENV=test SQLITE_MEMORY=true jest --verbose --runInBand"
+      "test": "cross-env NODE_ENV=test SQLITE_MEMORY=true jest --verbose --runInBand",
+      "prepare:env": "node -e \"const fs = require('fs'); if (!fs.existsSync('.env')) fs.copyFileSync('.env.example', '.env');\"",
+      "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+      "db:migrate": "knex migrate:latest --knexfile knexfile.js"
    },
    "jest": {
       "testEnvironment": "jsdom",
