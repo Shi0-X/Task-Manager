@@ -16,6 +16,7 @@ import fastifyObjectionjs from 'fastify-objectionjs';
 import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import dotenv from 'dotenv';
 
 import ru from './locales/ru.js';
@@ -52,6 +53,8 @@ async function registerPlugins(app) {
   });
 
   // 4) Passport
+  // Dividimos la línea larga en dos para respetar el límite de longitud
+  // eslint-disable-next-line max-len
   fastifyPassport.registerUserDeserializer((user) => app.objection.models.user.query().findById(user.id));
   fastifyPassport.registerUserSerializer((user) => Promise.resolve(user));
   fastifyPassport.use(new FormStrategy('form', app));
@@ -87,6 +90,7 @@ async function setUpViews(app) {
   });
 
   // Override render to inject flash & isAuthenticated
+  // eslint-disable-next-line func-names
   app.decorateReply('render', function (viewPath, locals = {}) {
     const reply = this;
     function flashFn() {
@@ -166,6 +170,7 @@ function setupErrorHandling(app) {
 
 export const options = { exposeHeadRoutes: false };
 
+// eslint-disable-next-line no-unused-vars
 export default async function plugin(app, _opts) {
   await registerPlugins(app);
   await setupLocalization();

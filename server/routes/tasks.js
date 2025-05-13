@@ -361,6 +361,7 @@ export default (app) => {
       preValidation: [app.authenticate],
     }, async (req, reply) => {
       // Esta ruta manejará los formularios que hacen POST en lugar de DELETE
+      // eslint-disable-next-line no-underscore-dangle
       if (req.body && req.body._method === 'DELETE') {
         try {
           const { id } = req.params;
@@ -403,9 +404,8 @@ export default (app) => {
           req.flash('error', i18next.t('flash.task.delete.error'));
           return reply.redirect(app.reverse('tasks'));
         }
-      } else {
-        // No es una solicitud de eliminación, rechazar
-        reply.code(400).send({ error: 'Bad Request' });
       }
+      // No es una solicitud de eliminación, rechazar
+      return reply.code(400).send({ error: 'Bad Request' });
     });
 };

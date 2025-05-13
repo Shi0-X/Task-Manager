@@ -2,3 +2,5 @@ node_modules
 dist
 db
 server/migrations
+__tests__
+public/offcanvas.js

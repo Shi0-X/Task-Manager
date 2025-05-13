@@ -2,6 +2,7 @@
 // @ts-check
 
 import Rollbar from 'rollbar';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import dotenv from 'dotenv';
 
 // Cargar variables de entorno

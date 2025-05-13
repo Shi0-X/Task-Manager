@@ -58,27 +58,12 @@ export default (app) => {
         statusCounts,
       });
     })
-    .get('/protected', { name: 'protected', preValidation: app.authenticate }, (req, reply) => {
-      reply.render('welcome/index');
-    })
-    // Ruta de prueba para Rollbar
-    .get('/test-rollbar', (req, reply) => {
-      try {
-        // Generar un error para probar Rollbar
-        throw new Error('Test error for Rollbar');
-      } catch (err) {
-        // Registrar el error en Rollbar
-        app.rollbar.error(err, req);
-        // Responder al cliente
-        return reply.send({
-          message: 'Error sent to Rollbar successfully',
-          error: err.message,
-        });
-      }
-    })
-    // Ruta para probar un error no manejado
-    .get('/test-rollbar-unhandled', (req, reply) => {
-      // Esto generará un error no manejado que debería ser capturado por Rollbar
-      throw new Error('Unhandled error for Rollbar testing');
-    });
+    .get(
+      '/protected',
+      { name: 'protected', preValidation: app.authenticate },
+      // eslint-disable-next-line no-unused-vars
+      (_req, _reply) => {
+        _reply.render('welcome/index');
+      },
+    );
 };
