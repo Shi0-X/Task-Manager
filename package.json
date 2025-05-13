@@ -15,7 +15,8 @@
       "test": "cross-env NODE_ENV=test SQLITE_MEMORY=true jest --verbose --runInBand",
       "prepare:env": "node -e \"const fs = require('fs'); if (!fs.existsSync('.env')) fs.copyFileSync('.env.example', '.env');\"",
       "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
-      "db:migrate": "knex migrate:latest --knexfile knexfile.js"
+      "db:migrate": "knex migrate:latest --knexfile knexfile.js",
+      "lint": "npx eslint ."
    },
    "jest": {
       "testEnvironment": "jsdom",

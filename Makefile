@@ -29,5 +29,9 @@ clean:
 test:
 	npm test
 
+# Linting - Verificar calidad de código
+lint:
+	npm run lint
+
 # Regla .PHONY para declarar objetivos que no son archivos
-.PHONY: prepare setup install db-migrate build start clean test
+.PHONY: prepare setup install db-migrate build start clean test lint
