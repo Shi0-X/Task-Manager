@@ -18,14 +18,14 @@ describe('test session', () => {
       exposeHeadRoutes: false,
       logger: { target: 'pino-pretty' },
     });
-    
+
     await init(app);
-    
+
     knex = app.objection.knex;
-    
+
     // IMPORTANTE: No ejecutamos migraciones aquí
     // En su lugar, confiamos en que el entorno de prueba ya tenga las tablas necesarias
-    
+
     // Intenta crear la tabla users manualmente si no existe
     try {
       const hasTable = await knex.schema.hasTable('users');
@@ -39,7 +39,7 @@ describe('test session', () => {
           table.timestamps(true, true);
         });
       }
-      
+
       // Preparar datos de prueba después de asegurarnos de que la tabla existe
       await prepareData(app);
     } catch (err) {

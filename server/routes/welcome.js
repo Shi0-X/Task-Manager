@@ -26,27 +26,29 @@ export default (app) => {
           const allStatuses = await app.objection.models.taskStatus.query()
             .select('id', 'name')
             .orderBy('name');
-          
+
           // Luego obtener los conteos de tareas por estado
           const taskCounts = await app.objection.models.task.query()
             .select('statusId')
             .count('id as count')
             .groupBy('statusId');
-          
+
           // Crear un mapa para buscar rápidamente los conteos
           const countMap = {};
-          taskCounts.forEach(item => {
+          taskCounts.forEach((item) => {
             countMap[item.statusId] = parseInt(item.count, 10);
           });
-          
+
           // Combinar los resultados
-          statusCounts = allStatuses.map(status => ({
+          statusCounts = allStatuses.map((status) => ({
             id: status.id,
             name: status.name,
-            count: countMap[status.id] || 0
+            count: countMap[status.id] || 0,
           }));
         } catch (err) {
           console.error('Error al obtener estadísticas:', err);
+          // Registrar el error en Rollbar
+          app.rollbar.error(err, req);
         }
       }
 
@@ -58,5 +60,25 @@ export default (app) => {
     })
     .get('/protected', { name: 'protected', preValidation: app.authenticate }, (req, reply) => {
       reply.render('welcome/index');
+    })
+    // Ruta de prueba para Rollbar
+    .get('/test-rollbar', (req, reply) => {
+      try {
+        // Generar un error para probar Rollbar
+        throw new Error('Test error for Rollbar');
+      } catch (err) {
+        // Registrar el error en Rollbar
+        app.rollbar.error(err, req);
+        // Responder al cliente
+        return reply.send({
+          message: 'Error sent to Rollbar successfully',
+          error: err.message,
+        });
+      }
+    })
+    // Ruta para probar un error no manejado
+    .get('/test-rollbar-unhandled', (req, reply) => {
+      // Esto generará un error no manejado que debería ser capturado por Rollbar
+      throw new Error('Unhandled error for Rollbar testing');
     });
 };

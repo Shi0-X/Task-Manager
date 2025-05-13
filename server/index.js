@@ -1,9 +1,10 @@
 // server/index.js
 
 import dotenv from 'dotenv';
-dotenv.config();
 
 import buildApp from '../src/index.js';
+
+dotenv.config();
 
 const start = async () => {
   try {

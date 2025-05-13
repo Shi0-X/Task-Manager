@@ -1,8 +1,8 @@
 // server/models/TaskStatus.js
 // @ts-check
 
-import BaseModel from './BaseModel.cjs';
 import { Model } from 'objection';
+import BaseModel from './BaseModel.cjs';
 
 export default class TaskStatus extends BaseModel {
   static get tableName() {

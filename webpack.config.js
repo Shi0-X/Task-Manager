@@ -6,11 +6,11 @@ const mode = process.env.NODE_ENV || 'development';
 
 export default {
   mode,
-  entry: './src/index.js',              // ← aquí
+  entry: './src/index.js', // ← aquí
   output: {
-    filename: 'main.js',                // nombre del bundle JS
+    filename: 'main.js', // nombre del bundle JS
     path: path.resolve(process.cwd(), 'dist'), // carpeta de salida
-    publicPath: '/assets/'              // para fastify-static
+    publicPath: '/assets/', // para fastify-static
   },
   module: {
     rules: [
@@ -18,14 +18,14 @@ export default {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader'
+          'css-loader',
         ],
       },
     ],
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'main.css'               // nombre del bundle CSS
+      filename: 'main.css', // nombre del bundle CSS
     }),
   ],
 };

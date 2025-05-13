@@ -20,12 +20,12 @@ describe('test tasks CRUD', () => {
       exposeHeadRoutes: false,
       logger: { target: 'pino-pretty' },
     });
-    
+
     await init(app);
-    
+
     knex = app.objection.knex;
     models = app.objection.models;
-    
+
     // Aplicar migraciones primero
     try {
       // Asegurarse de que tenemos tabla de migraciones
@@ -38,11 +38,11 @@ describe('test tasks CRUD', () => {
           table.timestamp('migration_time');
         });
       }
-      
+
       // Ejecutar las migraciones
       await knex.migrate.latest();
       console.log('Migraciones aplicadas correctamente');
-      
+
       // Preparar datos de prueba
       await prepareData(app);
     } catch (err) {
@@ -94,7 +94,7 @@ describe('test tasks CRUD', () => {
   it('create task', async () => {
     try {
       const cookie = await signIn(app, testData.users.existing);
-      
+
       const taskData = {
         data: {
           name: 'Tarea de prueba',
@@ -102,14 +102,14 @@ describe('test tasks CRUD', () => {
           description: 'Descripción de tarea de prueba',
         },
       };
-      
+
       const response = await app.inject({
         method: 'POST',
         url: app.reverse('createTask'),
         cookies: cookie,
         payload: taskData,
       });
-      
+
       expect([200, 302]).toContain(response.statusCode);
     } catch (err) {
       console.error('Error en prueba create task:', err);
@@ -122,43 +122,43 @@ describe('test tasks CRUD', () => {
   it('filter tasks', async () => {
     try {
       const cookie = await signIn(app, testData.users.existing);
-      
+
       // Probar filtro por estado
       const responseStatus = await app.inject({
         method: 'GET',
-        url: app.reverse('tasks') + '?status=1',
+        url: `${app.reverse('tasks')}?status=1`,
         cookies: cookie,
       });
       expect([200, 302]).toContain(responseStatus.statusCode);
-      
+
       // Probar filtro por ejecutor
       const responseExecutor = await app.inject({
         method: 'GET',
-        url: app.reverse('tasks') + '?executor=1',
+        url: `${app.reverse('tasks')}?executor=1`,
         cookies: cookie,
       });
       expect([200, 302]).toContain(responseExecutor.statusCode);
-      
+
       // Probar filtro por etiqueta
       const responseLabel = await app.inject({
         method: 'GET',
-        url: app.reverse('tasks') + '?label=1',
+        url: `${app.reverse('tasks')}?label=1`,
         cookies: cookie,
       });
       expect([200, 302]).toContain(responseLabel.statusCode);
-      
+
       // Probar filtro por tareas propias
       const responseMyTasks = await app.inject({
         method: 'GET',
-        url: app.reverse('tasks') + '?isCreatorUser=on',
+        url: `${app.reverse('tasks')}?isCreatorUser=on`,
         cookies: cookie,
       });
       expect([200, 302]).toContain(responseMyTasks.statusCode);
-      
+
       // Probar filtro combinado
       const responseCombined = await app.inject({
         method: 'GET',
-        url: app.reverse('tasks') + '?status=1&executor=1&isCreatorUser=on',
+        url: `${app.reverse('tasks')}?status=1&executor=1&isCreatorUser=on`,
         cookies: cookie,
       });
       expect([200, 302]).toContain(responseCombined.statusCode);
@@ -176,37 +176,37 @@ describe('test tasks CRUD', () => {
         method: 'GET',
         url: app.reverse('tasks'),
       })).toBeTruthy();
-      
+
       expect(app.hasRoute({
         method: 'GET',
         url: app.reverse('newTask'),
       })).toBeTruthy();
-      
+
       expect(app.hasRoute({
         method: 'POST',
         url: app.reverse('createTask'),
       })).toBeTruthy();
-      
+
       expect(app.hasRoute({
         method: 'GET',
         url: app.reverse('showTask', { id: 1 }),
       })).toBeTruthy();
-      
+
       expect(app.hasRoute({
         method: 'GET',
         url: app.reverse('editTask', { id: 1 }),
       })).toBeTruthy();
-      
+
       expect(app.hasRoute({
         method: 'PATCH',
         url: app.reverse('updateTask', { id: 1 }),
       })).toBeTruthy();
-      
+
       expect(app.hasRoute({
         method: 'DELETE',
         url: app.reverse('deleteTask', { id: 1 }),
       })).toBeTruthy();
-      
+
       expect(app.hasRoute({
         method: 'POST',
         url: app.reverse('postDeleteTask', { id: 1 }),

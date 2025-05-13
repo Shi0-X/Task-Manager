@@ -5,7 +5,7 @@ import { signIn } from './index.js';
 // Función para preparar datos de tareas específicamente para las pruebas de tareas
 export const prepareTaskData = async (app) => {
   const { knex } = app.objection;
-  
+
   // Verificar si las tablas existen, y crearlas si no
   try {
     // Verificar/crear tabla statuses
@@ -17,7 +17,7 @@ export const prepareTaskData = async (app) => {
         table.timestamps(true, true);
       });
     }
-    
+
     // Verificar/crear tabla tasks
     const hasTasksTable = await knex.schema.hasTable('tasks');
     if (!hasTasksTable) {
@@ -31,7 +31,7 @@ export const prepareTaskData = async (app) => {
         table.timestamps(true, true);
       });
     }
-    
+
     // Verificar/crear tabla labels
     const hasLabelsTable = await knex.schema.hasTable('labels');
     if (!hasLabelsTable) {
@@ -41,7 +41,7 @@ export const prepareTaskData = async (app) => {
         table.timestamps(true, true);
       });
     }
-    
+
     // Verificar/crear tabla tasks_labels
     const hasTasksLabelsTable = await knex.schema.hasTable('tasks_labels');
     if (!hasTasksLabelsTable) {
@@ -53,26 +53,26 @@ export const prepareTaskData = async (app) => {
         table.timestamps(true, true);
       });
     }
-    
+
     // Insertar datos de prueba para estados
     try {
       await knex('statuses').insert([
         { id: 1, name: 'nuevo' },
         { id: 2, name: 'en trabajo' },
         { id: 3, name: 'en prueba' },
-        { id: 4, name: 'completado' }
+        { id: 4, name: 'completado' },
       ]);
     } catch (err) {
       // Ignorar errores de duplicación
       console.log('Nota: Es posible que los estados ya existan');
     }
-    
+
     // Insertar datos de prueba para etiquetas
     try {
       await knex('labels').insert([
         { id: 1, name: 'bug' },
         { id: 2, name: 'feature' },
-        { id: 3, name: 'documentation' }
+        { id: 3, name: 'documentation' },
       ]);
     } catch (err) {
       // Ignorar errores de duplicación
@@ -87,7 +87,7 @@ export const prepareTaskData = async (app) => {
 // Función para crear una tarea de prueba
 export const createTestTask = async (app, user, taskData) => {
   const cookie = await signIn(app, user);
-  
+
   const response = await app.inject({
     method: 'POST',
     url: app.reverse('createTask'),
@@ -96,6 +96,6 @@ export const createTestTask = async (app, user, taskData) => {
       data: taskData,
     },
   });
-  
+
   return { response, cookie };
 };

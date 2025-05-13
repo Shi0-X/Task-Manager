@@ -27,35 +27,35 @@ export default class Label extends BaseModel {
     return {
       parse(json) {
         const result = { ...json };
-        
+
         if (result.created_at !== undefined) {
           result.createdAt = result.created_at;
           delete result.created_at;
         }
-        
+
         if (result.updated_at !== undefined) {
           result.updatedAt = result.updated_at;
           delete result.updated_at;
         }
-        
+
         return result;
       },
-      
+
       format(json) {
         const result = { ...json };
-        
+
         if (result.createdAt !== undefined) {
           result.created_at = result.createdAt;
           delete result.createdAt;
         }
-        
+
         if (result.updatedAt !== undefined) {
           result.updated_at = result.updatedAt;
           delete result.updatedAt;
         }
-        
+
         return result;
-      }
+      },
     };
   }
 

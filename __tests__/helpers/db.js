@@ -6,10 +6,10 @@ import * as knexConfig from '../../knexfile.js';
 export const createTestDatabase = async () => {
   // Crear una instancia de Knex con la configuración de prueba
   const db = knex(knexConfig.test);
-  
+
   // Ejecutar migraciones para crear las tablas necesarias
   await db.migrate.latest();
-  
+
   // Crear la tabla de usuarios manualmente si no existe
   const hasUsersTable = await db.schema.hasTable('users');
   if (!hasUsersTable) {
@@ -22,14 +22,14 @@ export const createTestDatabase = async () => {
       table.timestamps(true, true);
     });
   }
-  
+
   return db;
 };
 
 // Función para limpiar la base de datos
 export const cleanDatabase = async (db) => {
   const tables = ['users']; // Agregar más tablas si es necesario
-  
+
   for (const table of tables) {
     const exists = await db.schema.hasTable(table);
     if (exists) {

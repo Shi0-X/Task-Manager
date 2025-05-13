@@ -21,12 +21,12 @@ describe('test users CRUD', () => {
       exposeHeadRoutes: false,
       logger: { target: 'pino-pretty' },
     });
-    
+
     await init(app);
-    
+
     knex = app.objection.knex;
     models = app.objection.models;
-    
+
     // Intenta crear la tabla users manualmente si no existe
     try {
       const hasTable = await knex.schema.hasTable('users');
@@ -40,7 +40,7 @@ describe('test users CRUD', () => {
           table.timestamps(true, true);
         });
       }
-      
+
       // Preparar datos de prueba después de asegurarnos de que la tabla existe
       await prepareData(app);
     } catch (err) {
@@ -98,15 +98,15 @@ describe('test users CRUD', () => {
     const cookies = await signIn(app, testData.users.existing);
     const currentUser = await models.user.query()
       .findOne({ email: testData.users.existing.email });
-    
+
     // Usar datos de actualización con un email único
     const params = {
       firstName: 'Lawrence',
       lastName: 'Updated',
-      email: 'lawrence.updated@example.com',  // Email único
-      password: 'newPassword123'
+      email: 'lawrence.updated@example.com', // Email único
+      password: 'newPassword123',
     };
-    
+
     const response = await app.inject({
       method: 'PATCH',
       url: app.reverse('updateUser', { id: currentUser.id }),
@@ -134,11 +134,11 @@ describe('test users CRUD', () => {
       cookies: cookie,
     });
     expect(response.statusCode).toBe(302);
-    
+
     // Comentamos la verificación que está fallando
     // const userByEmail = await models.user.query().findOne({ email: testData.users.deleted.email });
     // expect(userByEmail).toBeUndefined();
-    
+
     // En su lugar, solo verificamos que la operación devuelve una redirección
     // Esto indica que la operación fue aceptada, aunque no elimine realmente el usuario
   });

@@ -16,6 +16,7 @@ import fastifyObjectionjs from 'fastify-objectionjs';
 import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
+import dotenv from 'dotenv';
 
 import ru from './locales/ru.js';
 import en from './locales/en.js';
@@ -25,11 +26,18 @@ import getHelpers from './helpers/index.js';
 import * as knexConfig from '../knexfile.js';
 import models from './models/index.js';
 import FormStrategy from './lib/passportStrategies/FormStrategy.js';
+import rollbar from './lib/rollbar.js';
+
+// Cargar variables de entorno
+dotenv.config();
 
 const __dirname = fileURLToPath(path.dirname(import.meta.url));
 const mode = process.env.NODE_ENV || 'development';
 
 async function registerPlugins(app) {
+  // Decorar la app con rollbar para uso global
+  app.decorate('rollbar', rollbar);
+
   // 1) sensible + form parser
   await app.register(fastifySensible);
   await app.register(fastifyFormbody, { parser: qs.parse });
@@ -44,21 +52,18 @@ async function registerPlugins(app) {
   });
 
   // 4) Passport
-  fastifyPassport.registerUserDeserializer(user =>
-    app.objection.models.user.query().findById(user.id)
-  );
-  fastifyPassport.registerUserSerializer(user => Promise.resolve(user));
+  fastifyPassport.registerUserDeserializer((user) => app.objection.models.user.query().findById(user.id));
+  fastifyPassport.registerUserSerializer((user) => Promise.resolve(user));
   fastifyPassport.use(new FormStrategy('form', app));
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
   app.decorate('fp', fastifyPassport);
   app.decorate(
     'authenticate',
-    (...args) =>
-      fastifyPassport.authenticate('form', {
-        failureRedirect: app.reverse('root'),
-        failureFlash: i18next.t('flash.authError'),
-      })(...args)
+    (...args) => fastifyPassport.authenticate('form', {
+      failureRedirect: app.reverse('root'),
+      failureFlash: i18next.t('flash.authError'),
+    })(...args),
   );
 
   // 5) method-override + ORM
@@ -77,7 +82,7 @@ async function setUpViews(app) {
     templates: path.join(__dirname, '..', 'server', 'views'),
     defaultContext: {
       ...helpers,
-      assetPath: filename => `/assets/${filename}`,
+      assetPath: (filename) => `/assets/${filename}`,
     },
   });
 
@@ -121,13 +126,43 @@ async function setupLocalization() {
   });
 }
 
-const addHooks = app => {
+const addHooks = (app) => {
   app.addHook('preHandler', (req, reply, done) => {
     // Expose isAuthenticated to Pug via reply.locals
     reply.locals = { isAuthenticated: () => req.isAuthenticated() };
     done();
   });
 };
+
+// Configurar el manejo de errores con Rollbar
+function setupErrorHandling(app) {
+  // Manejar errores no capturados
+  app.setErrorHandler((error, request, reply) => {
+    // Registrar el error en Rollbar
+    app.rollbar.error(error, request);
+
+    // Log local
+    app.log.error(error);
+
+    // Determinar código de estado
+    const statusCode = error.statusCode || 500;
+
+    // Responder al cliente
+    reply
+      .status(statusCode)
+      .send({
+        statusCode,
+        error: statusCode >= 500 ? 'Internal Server Error' : error.message,
+        message: error.message,
+      });
+  });
+
+  // Hook para errores
+  app.addHook('onError', (request, reply, error, done) => {
+    app.rollbar.error(error, request);
+    done();
+  });
+}
 
 export const options = { exposeHeadRoutes: false };
 
@@ -138,5 +173,6 @@ export default async function plugin(app, _opts) {
   setUpStaticAssets(app);
   addRoutes(app);
   addHooks(app);
+  setupErrorHandling(app); // Configurar manejo de errores con Rollbar
   return app;
 }

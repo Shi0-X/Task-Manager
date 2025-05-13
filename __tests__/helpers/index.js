@@ -43,7 +43,7 @@ export const addTestUser = async (userData) => {
       first_name: userData.firstName,
       last_name: userData.lastName,
       email: userData.email,
-      password_digest: encrypt(userData.password)
+      password_digest: encrypt(userData.password),
     });
   } catch (error) {
     console.error('Error al añadir usuario de prueba:', error);
