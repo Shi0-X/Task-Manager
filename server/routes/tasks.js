@@ -29,10 +29,68 @@ export default (app) => {
     // 1. Lista de tareas
     .get('/tasks', { name: 'tasks' }, async (req, reply) => {
       try {
-        const tasks = await app.objection.models.task.query()
-          .withGraphJoined('[status, creator, executor, labels]');
+        // Obtener los parámetros de filtro - solo los que el usuario ha seleccionado explícitamente
+        const filter = {};
         
-        return reply.render('tasks/index', { tasks });
+        // Solo agregar al filtro los parámetros que tienen un valor
+        if (req.query.status && req.query.status !== '') {
+          filter.status = req.query.status;
+        }
+        
+        if (req.query.executor && req.query.executor !== '') {
+          filter.executor = req.query.executor;
+        }
+        
+        if (req.query.label && req.query.label !== '') {
+          filter.label = req.query.label;
+        }
+        
+        if (req.query.isCreatorUser === 'on') {
+          filter.isCreatorUser = req.query.isCreatorUser;
+        }
+
+        // Obtener usuarios, estados y etiquetas para el formulario
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
+        
+        // Construir la consulta base
+        let query = app.objection.models.task.query()
+          .withGraphJoined('[status, creator, executor, labels]');
+
+        // Aplicar solo los filtros que el usuario seleccionó explícitamente
+        if (filter.status) {
+          query = query.where('tasks.statusId', Number(filter.status));
+        }
+
+        if (filter.executor) {
+          query = query.where('tasks.executorId', Number(filter.executor));
+        }
+
+        if (filter.label) {
+          const labelId = Number(filter.label);
+          query = query
+            .whereExists(
+              app.objection.models.task.relatedQuery('labels')
+                .where('labels.id', labelId)
+            );
+        }
+
+        if (filter.isCreatorUser === 'on' && req.user) {
+          query = query.where('tasks.creatorId', req.user.id);
+        }
+
+        // Ejecutar la consulta
+        const tasks = await query;
+        
+        return reply.render('tasks/index', { 
+          tasks,
+          statuses,
+          users,
+          labels,
+          filter, // Pasamos solo los filtros explícitamente seleccionados
+          currentUser: req.user
+        });
       } catch (err) {
         console.error('Error al obtener tareas:', err);
         req.flash('error', 'Failed to load tasks');

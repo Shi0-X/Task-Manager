@@ -1,9 +1,61 @@
 extends ../layouts/application.pug
 
 block content
-  .card
-    .card-body.p-5.bg-light
-      .display-4= t('views.welcome.index.hello')
-      p.lead= t('views.welcome.index.description')
-      hr
-      a.btn.btn-primary.btn-lg(href="https://hexlet.io")= t('views.welcome.index.more')
+  .container.py-4
+    .row.mb-5
+      .col-md-10.mx-auto.text-center
+        h1.display-4 Task Manager
+        p.lead.mt-3= t('views.welcome.index.description')
+        
+        if isAuthenticated()
+          .mt-4
+            a.btn.btn-primary.me-2(href=route('newTask'))= t('views.task.create')
+            a.btn.btn-outline-primary(href=route('tasks')) Ver todas las tareas
+    
+    if isAuthenticated()
+      .row.mt-4
+        .col-md-4.mb-4
+          .card.h-100.border-primary
+            .card-header.text-center.bg-primary.text-white Resumen de tareas
+            .card-body
+              .p-3.bg-light.rounded.mb-3
+                .d-flex.justify-content-between.mb-2
+                  span Mis tareas asignadas
+                  strong #{tasksAssigned || 0}
+                .d-flex.justify-content-between
+                  span Tareas creadas
+                  strong #{tasksCreated || 0}
+              a.btn.btn-sm.btn-outline-primary.w-100(href=route('tasks') + '?isCreatorUser=on') Ver mis tareas
+          
+        .col-md-4.mb-4
+          .card.h-100.border-success
+            .card-header.text-center.bg-success.text-white Estados
+            .card-body
+              if statusCounts && statusCounts.length > 0
+                ul.list-group.list-group-flush
+                  each status in statusCounts
+                    li.list-group-item.d-flex.justify-content-between
+                      span= status.name
+                      span.badge.bg-info.rounded-pill= status.count
+              else
+                p.text-muted.fst-italic No hay información de estados disponible
+              
+        .col-md-4.mb-4
+          .card.h-100.border-info
+            .card-header.text-center.bg-info.text-white Accesos rápidos
+            .card-body
+              .list-group.list-group-flush
+                a.list-group-item.list-group-item-action(href=route('newTask')) Crear nueva tarea
+                a.list-group-item.list-group-item-action(href=route('users')) Gestionar usuarios
+                a.list-group-item.list-group-item-action(href=route('statuses')) Gestionar estados
+                a.list-group-item.list-group-item-action(href=route('labels')) Gestionar etiquetas
+    else
+      .row.mt-5
+        .col-md-8.mx-auto
+          .card.border-0.shadow-sm
+            .card-body.p-5.text-center
+              h3.mb-4 ¡Comienza a gestionar tus tareas!
+              p Para comenzar a utilizar todas las funciones de Task Manager, por favor:
+              .mt-4
+                a.btn.btn-primary.me-2(href=route('newSession'))= t('layouts.application.signIn')
+                a.btn.btn-outline-primary(href=route('newUser'))= t('layouts.application.signUp')

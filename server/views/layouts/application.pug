@@ -52,15 +52,16 @@ html(lang="en")
                   = t('layouts.application.signOut')
     //───────────────────────────────────────────────────────────
 
-    // Secondary nav-scroller (igual que el ejemplo)
+    // Secondary nav-scroller con vistas específicas de tareas
     .nav-scroller.bg-body.shadow-sm
       .container-fluid
         nav.nav.nav-underline(aria-label="Secondary navigation")
-          a.nav-link.active(aria-current="page" href="#") Dashboard
-          a.nav-link(href="#") Friends
-          a.nav-link(href="#") Explore
-          a.nav-link(href="#") Suggestions
-          a.nav-link(href="#") Link
+          a.nav-link(href=route('root') class=currentUrl === route('root') ? 'active' : '') Dashboard
+          if isAuthenticated()
+            a.nav-link(href=route('tasks') + '?isCreatorUser=on') Mis tareas
+            a.nav-link(href=route('tasks') + '?status=1') En progreso
+            a.nav-link(href=route('tasks') + '?executor=' + (currentUser ? currentUser.id : '')) Asignadas a mí
+            a.nav-link(href=route('tasks') + '?statusId=3') Completadas
 
     main.container(style="padding-top: 120px;")
       //─ FLASH MESSAGES ─────────────────────────────────────────
@@ -75,8 +76,17 @@ html(lang="en")
       //─ Main content ────────────────────────────────────────────
       block content
 
-    footer.text-center.mt-4
-      p &copy; 2025 Your Company
+    footer.text-center.mt-4.py-3
+      p.mb-0
+        a.text-decoration-none.d-inline-flex.align-items-center(
+          href="https://shi0x.dev" 
+          target="_blank"
+          style="color: #212529; transition: color 0.3s ease;"
+          onmouseover="this.style.color='#0d6efd'" 
+          onmouseout="this.style.color='#212529'"
+        )
+          | &copy; 2025 
+          span.ms-1.fw-bold.text-primary Shi0-X
 
     //–– tu script que abre/cierra el offcanvas ––
     script(src=assetPath('offcanvas.js'))

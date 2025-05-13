@@ -202,6 +202,7 @@ export default {
           label: 'Label',
           isCreatorUser: 'Only my tasks',
           submit: 'Show',
+          reset: 'Reset Filter',
         },
       },
       welcome: {

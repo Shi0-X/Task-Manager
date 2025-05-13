@@ -6,6 +6,48 @@ block content
   if isAuthenticated()
     a.btn.btn-primary.mb-4(href=route('newTask'))= t('views.task.create')
   
+  //- Formulario de filtro
+  .card.mb-4
+    .card-header= t('views.task.filter.status')
+    .card-body
+      form(action=route('tasks') method='get')
+        .row
+          .col-md-3.mb-3
+            label.form-label(for='status')= t('views.task.filter.status')
+            select.form-select(name='status' id='status')
+              option(value='')= t('views.task.select.default')
+              each status in statuses || []
+                - const isSelected = filter && filter.status && status.id === Number(filter.status)
+                option(value=status.id selected=isSelected)= status.name
+          
+          .col-md-3.mb-3
+            label.form-label(for='executor')= t('views.task.filter.executor')
+            select.form-select(name='executor' id='executor')
+              option(value='')= t('views.task.select.default')
+              each user in users || []
+                - const isSelected = filter && filter.executor && user.id === Number(filter.executor)
+                option(value=user.id selected=isSelected)= user.firstName + ' ' + user.lastName
+          
+          .col-md-3.mb-3
+            label.form-label(for='label')= t('views.task.filter.label')
+            select.form-select(name='label' id='label')
+              option(value='')= t('views.task.select.default')
+              each label in labels || []
+                - const isSelected = filter && filter.label && label.id === Number(filter.label)
+                option(value=label.id selected=isSelected)= label.name
+
+        .form-check.mb-3
+          - const isCreatorChecked = filter && filter.isCreatorUser === 'on'
+          input.form-check-input(type='checkbox' name='isCreatorUser' id='isCreatorUser' checked=isCreatorChecked)
+          label.form-check-label(for='isCreatorUser')= t('views.task.filter.isCreatorUser')
+        
+        .d-flex
+          button.btn.btn-outline-primary(type='submit')= t('views.task.filter.submit')
+          
+          //- Botón para restablecer filtros
+          if filter && Object.keys(filter).length > 0
+            a.btn.btn-outline-secondary.ms-2(href=route('tasks'))= t('views.task.filter.reset')
+  
   table.table.table-striped
     thead
       tr
@@ -14,6 +56,7 @@ block content
         th= t('views.task.status')
         th= t('views.task.creator')
         th= t('views.task.executor')
+        th= t('views.task.labels')
         th= t('views.task.createdAt')
         if isAuthenticated()
           th.text-center= t('views.task.actions')
@@ -26,6 +69,10 @@ block content
           td= task.status ? task.status.name : ''
           td= task.creator ? task.creator.firstName + ' ' + task.creator.lastName : ''
           td= task.executor ? task.executor.firstName + ' ' + task.executor.lastName : ''
+          td
+            if task.labels && task.labels.length > 0
+              each label in task.labels
+                span.badge.bg-info.me-1= label.name
           td= formatDate(task.createdAt)
           if isAuthenticated()
             td.text-center
