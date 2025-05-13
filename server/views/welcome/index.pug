@@ -10,26 +10,26 @@ block content
         if isAuthenticated()
           .mt-4
             a.btn.btn-primary.me-2(href=route('newTask'))= t('views.task.create')
-            a.btn.btn-outline-primary(href=route('tasks')) Ver todas las tareas
+            a.btn.btn-outline-primary(href=route('tasks')) View all tasks
     
     if isAuthenticated()
       .row.mt-4
         .col-md-4.mb-4
           .card.h-100.border-primary
-            .card-header.text-center.bg-primary.text-white Resumen de tareas
+            .card-header.text-center.bg-primary.text-white Task Summary
             .card-body
               .p-3.bg-light.rounded.mb-3
                 .d-flex.justify-content-between.mb-2
-                  span Mis tareas asignadas
+                  span My assigned tasks
                   strong #{tasksAssigned || 0}
                 .d-flex.justify-content-between
-                  span Tareas creadas
+                  span Created tasks
                   strong #{tasksCreated || 0}
-              a.btn.btn-sm.btn-outline-primary.w-100(href=route('tasks') + '?isCreatorUser=on') Ver mis tareas
+              a.btn.btn-sm.btn-outline-primary.w-100(href=route('tasks') + '?isCreatorUser=on') View my tasks
           
         .col-md-4.mb-4
           .card.h-100.border-success
-            .card-header.text-center.bg-success.text-white Estados
+            .card-header.text-center.bg-success.text-white Statuses
             .card-body
               if statusCounts && statusCounts.length > 0
                 ul.list-group.list-group-flush
@@ -38,24 +38,24 @@ block content
                       span= status.name
                       span.badge.bg-info.rounded-pill= status.count
               else
-                p.text-muted.fst-italic No hay información de estados disponible
+                p.text-muted.fst-italic No status information available
               
         .col-md-4.mb-4
           .card.h-100.border-info
-            .card-header.text-center.bg-info.text-white Accesos rápidos
+            .card-header.text-center.bg-info.text-white Quick Access
             .card-body
               .list-group.list-group-flush
-                a.list-group-item.list-group-item-action(href=route('newTask')) Crear nueva tarea
-                a.list-group-item.list-group-item-action(href=route('users')) Gestionar usuarios
-                a.list-group-item.list-group-item-action(href=route('statuses')) Gestionar estados
-                a.list-group-item.list-group-item-action(href=route('labels')) Gestionar etiquetas
+                a.list-group-item.list-group-item-action(href=route('newTask')) Create new task
+                a.list-group-item.list-group-item-action(href=route('users')) Manage users
+                a.list-group-item.list-group-item-action(href=route('statuses')) Manage statuses
+                a.list-group-item.list-group-item-action(href=route('labels')) Manage labels
     else
       .row.mt-5
         .col-md-8.mx-auto
           .card.border-0.shadow-sm
             .card-body.p-5.text-center
-              h3.mb-4 ¡Comienza a gestionar tus tareas!
-              p Para comenzar a utilizar todas las funciones de Task Manager, por favor:
+              h3.mb-4 Start managing your tasks!
+              p To start using all the features of Task Manager, please:
               .mt-4
                 a.btn.btn-primary.me-2(href=route('newSession'))= t('layouts.application.signIn')
                 a.btn.btn-outline-primary(href=route('newUser'))= t('layouts.application.signUp')

@@ -58,10 +58,10 @@ html(lang="en")
         nav.nav.nav-underline(aria-label="Secondary navigation")
           a.nav-link(href=route('root') class=currentUrl === route('root') ? 'active' : '') Dashboard
           if isAuthenticated()
-            a.nav-link(href=route('tasks') + '?isCreatorUser=on') Mis tareas
-            a.nav-link(href=route('tasks') + '?status=1') En progreso
-            a.nav-link(href=route('tasks') + '?executor=' + (currentUser ? currentUser.id : '')) Asignadas a mí
-            a.nav-link(href=route('tasks') + '?statusId=3') Completadas
+            a.nav-link(href=route('tasks') + '?isCreatorUser=on') My tasks
+            a.nav-link(href=route('tasks') + '?status=1') In progress
+            a.nav-link(href=route('tasks') + '?executor=' + (currentUser ? currentUser.id : '')) Assigned to me
+            a.nav-link(href=route('tasks') + '?statusId=3') Completed
 
     main.container(style="padding-top: 120px;")
       //─ FLASH MESSAGES ─────────────────────────────────────────
