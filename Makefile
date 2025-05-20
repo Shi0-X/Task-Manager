@@ -1,37 +1,24 @@
-# Makefile
-
-# Preparar archivos de configuración iniciales - Compatible con Windows y Linux
-prepare:
-	npm run prepare:env
-
-# 1) Preparar el .env y dependencias, luego migrar la BD
 setup: prepare install db-migrate
-
 install:
 	npm install
-
+prepare:
+	cp -n .env.example .env || true
 db-migrate:
-	npm run db:migrate
-
-# 2) Compilar assets con webpack
+	npx knex migrate:latest
 build:
 	npm run build
-
-# 3) Levantar la app en producción
+start-backend:
+	npm start -- --watch --verbose-watch --ignore-watch='node_modules .git .sqlite'
+start-frontend:
+	npx webpack --watch --progress
 start:
-	npm start
-
-# Limpieza de build
-clean:
-	npm run clean
-
-# Testing
+	heroku local -f Procfile.dev
 test:
-	npm test
-
-# Linting - Verificar calidad de código
+	npm test -s
+test-coverage:
+	npm test -- --coverage
 lint:
-	npm run lint
+	npx eslint .
 
 # Regla .PHONY para declarar objetivos que no son archivos
-.PHONY: prepare setup install db-migrate build start clean test lint
+.PHONY: setup install prepare db-migrate build start-backend start-frontend start test test-coverage lint
