@@ -98,7 +98,7 @@ export default {
       },
       user: {
         id: 'ID',
-        email: 'Email',
+        email: 'Correo electrónico',
         name: 'Nombre completo',
         firstName: 'Nombre',
         lastName: 'Apellido',
