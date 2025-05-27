@@ -71,7 +71,7 @@ export default (app) => {
         await app.objection.models.user.query().insert(validUser);
 
         req.flash('info', i18next.t('flash.user.create.success'));
-        return reply.redirect(app.reverse('users'));
+        return reply.redirect(app.reverse('root')); // ✅ Cambiado a 'root'
       } catch (err) {
         // Depuramos en consola con más detalles
         console.error('Error al registrar usuario:', err);
