@@ -275,6 +275,9 @@ export default {
       signIn: {
         name: 'Entrar',
       },
+      signUp: {
+        name: 'Registro',
+      },
       signOut: {
         name: 'Cerrar sesión',
       },
