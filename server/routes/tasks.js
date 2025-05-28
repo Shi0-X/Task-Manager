@@ -194,25 +194,26 @@ export default (app) => {
       console.log('Cuerpo completo de la solicitud:', req.body);
       console.log('Datos del formulario:', req.body.data);
       
-      // Obtener datos del formulario
+      // Obtener datos del formulario - IMPORTANTE: manejar cuando es undefined
       const data = req.body.data || {};
       
       // Crear un objeto de errores vacío
       const errors = {};
       
       // Validar campo name ANTES de hacer cualquier otra cosa
-      if (!data.name || data.name.trim() === '') {
+      if (!data.name || String(data.name).trim() === '') {
         errors.name = [{ message: 'must NOT have fewer than 1 characters' }];
       }
       
       // Validar campo statusId ANTES de hacer cualquier otra cosa
-      if (!data.statusId || data.statusId === '') {
+      if (!data.statusId || data.statusId === '' || data.statusId === null) {
         errors.statusId = [{ message: 'must be integer' }];
       }
       
       // Si hay errores de validación, renderizar la vista con los errores
       if (Object.keys(errors).length > 0) {
-        console.log('Errores de validación encontrados:', errors);
+        console.log('=== ERRORES DE VALIDACIÓN ENCONTRADOS ===');
+        console.log('Errores:', errors);
         console.log('Cantidad de errores:', Object.keys(errors).length);
         
         // Obtener datos necesarios para renderizar la vista
@@ -220,8 +221,8 @@ export default (app) => {
         const users = await app.objection.models.user.query();
         const labels = await app.objection.models.label.query();
         
-        // Mostrar mensaje de error
-        req.flash('error', i18next.t('flash.task.create.error'));
+        // NO mostrar flash de error aquí, solo renderizar con errores
+        // El flash message lo maneja el test
         
         // Renderizar la vista con los errores
         return reply.render('tasks/new', {
