@@ -7,10 +7,14 @@ block content
     .form-group.mb-3
       label(for='data_name')= t('views.task.name')
       input#data_name.form-control(type='text' name='data[name]' value=task.name || '' required)
+      if errors && errors.name
+        .invalid-feedback.d-block= errors.name[0].message
     
     .form-group.mb-3
       label(for='data_description')= t('views.task.description')
       textarea#data_description.form-control(name='data[description]' rows='3')= task.description || ''
+      if errors && errors.description
+        .invalid-feedback.d-block= errors.description[0].message
     
     .form-group.mb-3
       label(for='data_statusId')= t('views.task.status')
@@ -18,6 +22,8 @@ block content
         option(value='')= t('views.task.select.default')
         each status in statuses
           option(value=status.id selected=(task.statusId === status.id))= status.name
+      if errors && errors.statusId
+        .invalid-feedback.d-block= errors.statusId[0].message
     
     .form-group.mb-3
       label(for='data_executorId')= t('views.task.executor')
@@ -25,12 +31,16 @@ block content
         option(value='')= t('views.task.select.default')
         each user in users
           option(value=user.id selected=(task.executorId === user.id))= user.firstName + ' ' + user.lastName
+      if errors && errors.executorId
+        .invalid-feedback.d-block= errors.executorId[0].message
     
     .form-group.mb-3
       label(for='data_labels')= t('views.task.labels')
       select#data_labels.form-control(name='data[labels]' multiple)
         each label in labels
           option(value=label.id)= label.name
+      if errors && errors.labels
+        .invalid-feedback.d-block= errors.labels[0].message
     
     button.btn.btn-primary(type='submit')= t('views.task.new.submit')
   
