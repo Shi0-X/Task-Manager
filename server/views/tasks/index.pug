@@ -13,24 +13,24 @@ block content
       form(action=route('tasks') method='get')
         .row
           .col-md-3.mb-3
-            label.form-label(for='status')= t('views.task.filter.status')
-            select.form-select(name='status' id='status')
+            label.form-label(for='data_status')= t('views.task.filter.status')
+            select.form-select(name='status' id='data_status')
               option(value='')= t('views.task.select.default')
               each status in statuses || []
                 - const isSelected = filter && filter.status && status.id === Number(filter.status)
                 option(value=status.id selected=isSelected)= status.name
           
           .col-md-3.mb-3
-            label.form-label(for='executor')= t('views.task.filter.executor')
-            select.form-select(name='executor' id='executor')
+            label.form-label(for='data_executor')= t('views.task.filter.executor')
+            select.form-select(name='executor' id='data_executor')
               option(value='')= t('views.task.select.default')
               each user in users || []
                 - const isSelected = filter && filter.executor && user.id === Number(filter.executor)
                 option(value=user.id selected=isSelected)= user.firstName + ' ' + user.lastName
           
           .col-md-3.mb-3
-            label.form-label(for='label')= t('views.task.filter.label')
-            select.form-select(name='label' id='label')
+            label.form-label(for='data_label')= t('views.task.filter.label')
+            select.form-select(name='label' id='data_label')
               option(value='')= t('views.task.select.default')
               each label in labels || []
                 - const isSelected = filter && filter.label && label.id === Number(filter.label)
@@ -42,7 +42,7 @@ block content
           label.form-check-label(for='isCreatorUser')= t('views.task.filter.isCreatorUser')
         
         .d-flex
-          button.btn.btn-outline-primary(type='submit')= t('views.task.filter.submit')
+          button.btn.btn-outline-primary(type='submit')= t('buttons.show.name')
           
           //- Botón para restablecer filtros
           if filter && Object.keys(filter).length > 0
