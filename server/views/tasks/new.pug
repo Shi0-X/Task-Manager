@@ -3,44 +3,77 @@ extends ../layouts/application.pug
 block content
   h1.my-4= t('views.task.new.title')
   
+  //- La acción de la ruta se genera con app.reverse('createTask') en el backend, no directamente aquí.
+  //- El helper 'route' ya debería generar la URL correcta si está configurado.
   form(action=route('createTask') method='post')
     .form-group.mb-3
       label(for='data_name')= t('views.task.name')
-      input#data_name.form-control(type='text' name='data[name]' value=task.name || '' required)
+      //- Añadir clase 'is-invalid' si hay errores para 'name'
+      input#data_name.form-control(
+        type='text'
+        name='data[name]'
+        value=task.name || ''
+        class=(errors && errors.name ? 'is-invalid' : '')
+      )
+      //- No es necesario el atributo 'required' en el HTML si la validación del backend es robusta
+      //- y se muestran errores. Sin embargo, no hace daño para la validación del lado del cliente.
       if errors && errors.name
         .invalid-feedback.d-block= errors.name[0].message
     
     .form-group.mb-3
       label(for='data_description')= t('views.task.description')
-      textarea#data_description.form-control(name='data[description]' rows='3')= task.description || ''
+      textarea#data_description.form-control(
+        name='data[description]'
+        rows='3'
+        class=(errors && errors.description ? 'is-invalid' : '')
+      )= task.description || ''
       if errors && errors.description
         .invalid-feedback.d-block= errors.description[0].message
     
     .form-group.mb-3
       label(for='data_statusId')= t('views.task.status')
-      select#data_statusId.form-control(name='data[statusId]' required)
+      select#data_statusId.form-control(
+        name='data[statusId]'
+        class=(errors && errors.statusId ? 'is-invalid' : '')
+      )
+        //- El atributo 'required' aquí puede ayudar al navegador, pero la validación del backend es la clave.
         option(value='')= t('views.task.select.default')
         each status in statuses
-          option(value=status.id selected=(task.statusId === status.id))= status.name
+          option(value=status.id selected=(task.statusId && Number(task.statusId) === status.id))= status.name
       if errors && errors.statusId
         .invalid-feedback.d-block= errors.statusId[0].message
     
     .form-group.mb-3
       label(for='data_executorId')= t('views.task.executor')
-      select#data_executorId.form-control(name='data[executorId]')
+      select#data_executorId.form-control(
+        name='data[executorId]'
+        class=(errors && errors.executorId ? 'is-invalid' : '')
+      )
         option(value='')= t('views.task.select.default')
         each user in users
-          option(value=user.id selected=(task.executorId === user.id))= user.firstName + ' ' + user.lastName
+          option(value=user.id selected=(task.executorId && Number(task.executorId) === user.id))= user.firstName + ' ' + user.lastName
       if errors && errors.executorId
         .invalid-feedback.d-block= errors.executorId[0].message
     
     .form-group.mb-3
       label(for='data_labels')= t('views.task.labels')
-      select#data_labels.form-control(name='data[labels]' multiple)
+      //- Para select multiple, el manejo de 'selected' es diferente
+      //- y la clase is-invalid se aplica al select en sí.
+      select#data_labels.form-control(
+        name='data[labels]'
+        multiple
+        class=(errors && errors.labels ? 'is-invalid' : '')
+      )
+        //- Para re-seleccionar en un select múltiple con errores:
+        //- necesitas pasar los labels seleccionados (ej. task.labels que sería un array de IDs)
+        //- y comprobar si label.id está en ese array.
+        - const selectedLabelIds = task.labels ? _.castArray(task.labels).map(id => Number(id)) : [];
         each label in labels
-          option(value=label.id)= label.name
+          option(value=label.id selected=selectedLabelIds.includes(label.id))= label.name
       if errors && errors.labels
-        .invalid-feedback.d-block= errors.labels[0].message
+        //- El error de 'labels' podría no venir de la validación del modelo Task
+        //- directamente, a menos que lo manejes específicamente.
+        .invalid-feedback.d-block= errors.labels[0].message 
     
     button.btn.btn-primary(type='submit')= t('views.task.new.submit')
   
