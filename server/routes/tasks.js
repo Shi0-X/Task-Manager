@@ -115,6 +115,7 @@ export default (app) => {
           users,
           labels,
           currentUser: req.user,
+          errors: {}, // Agregar errors vacío por defecto
         });
       } catch (err) {
         console.error('Error al cargar formulario de nueva tarea:', err);
@@ -188,23 +189,37 @@ export default (app) => {
       name: 'createTask',
       preValidation: app.authenticate,
     }, async (req, reply) => {
+      console.log('=== INICIO DE CREACIÓN DE TAREA ===');
+      console.log('Cuerpo completo de la solicitud:', req.body);
+      console.log('Datos del formulario:', req.body.data);
+      console.log('Usuario autenticado: ID:', req.user.id);
+      
+      // Crear la tarea para validación
+      const task = new app.objection.models.task();
+      
       try {
+        // Extraer los IDs de etiquetas del formulario
+        const labelIds = req.body.data.labels
+          ? _.castArray(req.body.data.labels).map(Number)
+          : [];
+
+        // Eliminar labels del objeto data para la creación de la tarea
+        const { labels, ...taskData } = req.body.data;
+
+        // Configurar la tarea con los datos
+        task.$set({ ...taskData, creatorId: req.user.id });
+        
+        console.log('Objeto task antes de validar:', task);
+        
+        // VALIDAR ANTES de insertar - esto es clave
+        await task.$validate();
+        console.log('Validación exitosa');
+
         const trx = await app.objection.models.task.startTransaction();
 
         try {
-          // Extraer los IDs de etiquetas del formulario
-          const labelIds = req.body.data.labels
-            ? _.castArray(req.body.data.labels).map(Number)
-            : [];
-
-          // Eliminar labels del objeto data para la creación de la tarea
-          const { labels, ...taskData } = req.body.data;
-
-          // Crear la tarea
-          const task = new app.objection.models.task();
-          task.$set({ ...taskData, creatorId: req.user.id });
-
           const validTask = await app.objection.models.task.query(trx).insert(task);
+          console.log('Tarea creada exitosamente:', validTask);
 
           // Asociar etiquetas a la tarea
           if (labelIds.length > 0) {
@@ -214,6 +229,7 @@ export default (app) => {
             }));
 
             await trx('tasks_labels').insert(labelRelations);
+            console.log('Etiquetas asociadas exitosamente');
           }
 
           await trx.commit();
@@ -226,14 +242,19 @@ export default (app) => {
         }
       } catch (err) {
         console.error('Error al crear tarea:', err);
+        console.error('Detalles del error:', err.data);
+        
         req.flash('error', i18next.t('flash.task.create.error'));
 
+        // Obtener datos necesarios para renderizar la vista
         const statuses = await app.objection.models.taskStatus.query();
         const users = await app.objection.models.user.query();
         const labels = await app.objection.models.label.query();
 
+        console.log('Renderizando vista con errores:', err.data);
+
         return reply.render('tasks/new', {
-          task: req.body.data,
+          task, // Pasar el objeto task con los datos del formulario
           statuses,
           users,
           labels,
