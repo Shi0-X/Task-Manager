@@ -184,56 +184,61 @@ export default (app) => {
         return reply.redirect(app.reverse('tasks'));
       }
     })
-
-    // 5. Crear una tarea
-    .post('/tasks', {
-      name: 'createTask',
-      preValidation: app.authenticate,
-    }, async (req, reply) => {
-      console.log('=== INICIO DE CREACIÓN DE TAREA ===');
-      console.log('Cuerpo completo de la solicitud:', req.body);
-      console.log('Datos del formulario:', req.body.data);
-      
-      // Obtener datos del formulario - IMPORTANTE: manejar cuando es undefined
-      const data = req.body.data || {};
-      
-      // Crear un objeto de errores vacío
-      const errors = {};
-      
-      // Validar campo name ANTES de hacer cualquier otra cosa
-      if (!data.name || String(data.name).trim() === '') {
-        errors.name = [{ message: 'must NOT have fewer than 1 characters' }];
-      }
-      
-      // Validar campo statusId ANTES de hacer cualquier otra cosa
-      if (!data.statusId || data.statusId === '' || data.statusId === null) {
-        errors.statusId = [{ message: 'must be integer' }];
-      }
-      
-      // Si hay errores de validación, renderizar la vista con los errores
-      if (Object.keys(errors).length > 0) {
-        console.log('=== ERRORES DE VALIDACIÓN ENCONTRADOS ===');
-        console.log('Errores:', errors);
-        console.log('Cantidad de errores:', Object.keys(errors).length);
-        
-        // Obtener datos necesarios para renderizar la vista
-        const statuses = await app.objection.models.taskStatus.query();
-        const users = await app.objection.models.user.query();
-        const labels = await app.objection.models.label.query();
-        
-        // NO mostrar flash de error aquí, solo renderizar con errores
-        // El flash message lo maneja el test
-        
-        // Renderizar la vista con los errores
-        return reply.render('tasks/new', {
-          task: data, // Pasar los datos del formulario
-          statuses,
-          users,
-          labels,
-          currentUser: req.user,
-          errors, // Pasar los errores de validación
-        });
-      }
+// 5. Crear una tarea
+.post('/tasks', {
+  name: 'createTask',
+  preValidation: app.authenticate,
+}, async (req, reply) => {
+  console.log('=== INICIO DE CREACIÓN DE TAREA ===');
+  console.log('Método:', req.method);
+  console.log('URL:', req.url);
+  console.log('Headers:', req.headers);
+  console.log('Cuerpo completo de la solicitud:', JSON.stringify(req.body, null, 2));
+  console.log('Datos del formulario:', req.body.data);
+  
+  // Obtener datos del formulario - IMPORTANTE: manejar cuando es undefined
+  const data = req.body.data || {};
+  
+  // Crear un objeto de errores vacío
+  const errors = {};
+  
+  // Validar campo name ANTES de hacer cualquier otra cosa
+  console.log('Validando campo name:', data.name);
+  if (!data.name || String(data.name).trim() === '') {
+    errors.name = [{ message: 'must NOT have fewer than 1 characters' }];
+    console.log('Error en name: campo vacío');
+  }
+  
+  // Validar campo statusId ANTES de hacer cualquier otra cosa
+  console.log('Validando campo statusId:', data.statusId);
+  if (!data.statusId || data.statusId === '' || data.statusId === null || data.statusId === undefined) {
+    errors.statusId = [{ message: 'must be integer' }];
+    console.log('Error en statusId: campo vacío');
+  }
+  
+  // Si hay errores de validación, renderizar la vista con los errores
+  if (Object.keys(errors).length > 0) {
+    console.log('=== ERRORES DE VALIDACIÓN ENCONTRADOS ===');
+    console.log('Errores:', JSON.stringify(errors, null, 2));
+    console.log('Cantidad de errores:', Object.keys(errors).length);
+    
+    // Obtener datos necesarios para renderizar la vista
+    const statuses = await app.objection.models.taskStatus.query();
+    const users = await app.objection.models.user.query();
+    const labels = await app.objection.models.label.query();
+    
+    console.log('Renderizando vista con errores de validación');
+    
+    // Renderizar la vista con los errores
+    return reply.render('tasks/new', {
+      task: data, // Pasar los datos del formulario
+      statuses,
+      users,
+      labels,
+      currentUser: req.user,
+      errors, // Pasar los errores de validación
+    });
+  }
       
       // Si llegamos aquí, no hay errores de validación manual
       // Continuamos con la creación normal de la tarea

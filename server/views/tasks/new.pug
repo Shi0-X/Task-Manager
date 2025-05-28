@@ -6,7 +6,7 @@ block content
   form(action=route('createTask') method='post')
     .form-group.mb-3
       label(for='data_name')= t('views.task.name')
-      input#data_name.form-control(type='text' name='data[name]' value=task.name || '' required)
+      input#data_name.form-control(type='text' name='data[name]' value=task.name || '')
       if errors && errors.name
         .invalid-feedback.d-block= errors.name[0].message
     
@@ -18,7 +18,7 @@ block content
     
     .form-group.mb-3
       label(for='data_statusId')= t('views.task.status')
-      select#data_statusId.form-control(name='data[statusId]' required)
+      select#data_statusId.form-control(name='data[statusId]')
         option(value='')= t('views.task.select.default')
         each status in statuses
           option(value=status.id selected=(task.statusId === status.id))= status.name
