@@ -4,310 +4,471 @@
 import i18next from 'i18next';
 import _ from 'lodash';
 
-// Asegúrate de que esta utilidad exista y funcione como se espera
-// Probablemente convierte varios formatos de entrada de un select múltiple a un array de números.
-import normalizeMultiSelect from '../lib/normalizeMultiSelect.js'; // Verifica la ruta
-
 export default (app) => {
+  // Middleware para verificar que solo el creador pueda eliminar la tarea
+  const checkTaskOwnership = async (req, reply) => {
+    const { id } = req.params;
+    const task = await app.objection.models.task.query().findById(id);
+
+    // Si la tarea no existe, redirigir
+    if (!task) {
+      req.flash('error', i18next.t('flash.task.view.error'));
+      return reply.redirect(app.reverse('tasks'));
+    }
+
+    // Si el usuario actual no es el creador, no permitir la eliminación
+    if (req.user.id !== task.creatorId) {
+      req.flash('error', i18next.t('flash.task.delete.error'));
+      return reply.redirect(app.reverse('tasks'));
+    }
+
+    return true;
+  };
+
   app
     // 1. Lista de tareas
-    .get('/tasks', { name: 'tasks', preValidation: app.authenticate }, async (req, reply) => {
-      const rawFilterParams = req.query;
-      console.log('GET /tasks - Query params recibidos:', JSON.stringify(rawFilterParams, null, 2));
-
-      const tasksQuery = app.objection.models.task.query()
-        .withGraphJoined('[status, creator, executor, labels]')
-        .modify('sortByLatestCreatedDate'); // Asume que este modificador existe
-
-      // Aplicar filtros usando modificadores del modelo
-      // Los modificadores deben manejar la conversión a Number y verificar si el valor es válido/no vacío
-      if (rawFilterParams.status) {
-        tasksQuery.modify('filterByStatus', rawFilterParams.status);
-      }
-      if (rawFilterParams.executor) {
-        tasksQuery.modify('filterByExecutor', rawFilterParams.executor);
-      }
-      if (rawFilterParams.isCreatorUser === 'on' && req.user) {
-        tasksQuery.modify('filterByCreator', req.user.id);
-      }
-      if (rawFilterParams.label) {
-        tasksQuery.modify('filterByLabel', rawFilterParams.label);
-      }
-      
-      console.log('GET /tasks - Objeto de filtro (implícito por modificadores) basado en:', JSON.stringify(rawFilterParams, null, 2));
-
+    .get('/tasks', { name: 'tasks' }, async (req, reply) => {
       try {
-        const [statuses, users, labels, tasks] = await Promise.all([
-          app.objection.models.taskStatus.query(),
-          app.objection.models.user.query(),
-          app.objection.models.label.query(),
-          tasksQuery, // Ejecutar la consulta de tareas ya construida
-        ]);
+        // Obtener los parámetros de filtro - solo los que el usuario ha seleccionado explícitamente
+        const filter = {};
 
-        console.log('GET /tasks - Tareas devueltas por la consulta:', tasks.map(t => ({
-          id: t.id, name: t.name, statusId: t.statusId, executorId: t.executorId, creatorId: t.creatorId,
-          labelIds: t.labels ? t.labels.map(l => l.id) : [],
-        })));
+        // Solo agregar al filtro los parámetros que tienen un valor
+        if (req.query.status && req.query.status !== '') {
+          filter.status = req.query.status;
+        }
 
-        reply.render('tasks/index', {
-          tasks, statuses, users, labels, filterConditions: rawFilterParams, // Pasar params originales para el form
+        if (req.query.executor && req.query.executor !== '') {
+          filter.executor = req.query.executor;
+        }
+
+        if (req.query.label && req.query.label !== '') {
+          filter.label = req.query.label;
+        }
+
+        if (req.query.isCreatorUser === 'on') {
+          filter.isCreatorUser = req.query.isCreatorUser;
+        }
+
+        // Obtener usuarios, estados y etiquetas para el formulario
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
+
+        // Construir la consulta base
+        let query = app.objection.models.task.query()
+          .withGraphJoined('[status, creator, executor, labels]');
+
+        // Aplicar solo los filtros que el usuario seleccionó explícitamente
+        if (filter.status) {
+          query = query.where('tasks.statusId', Number(filter.status));
+        }
+
+        if (filter.executor) {
+          query = query.where('tasks.executorId', Number(filter.executor));
+        }
+
+        if (filter.label) {
+          const labelId = Number(filter.label);
+          query = query
+            .whereExists(
+              app.objection.models.task.relatedQuery('labels')
+                .where('labels.id', labelId),
+            );
+        }
+
+        if (filter.isCreatorUser === 'on' && req.user) {
+          query = query.where('tasks.creatorId', req.user.id);
+        }
+
+        // Ejecutar la consulta
+        const tasks = await query;
+
+        return reply.render('tasks/index', {
+          tasks,
+          statuses,
+          users,
+          labels,
+          filter, // Pasamos solo los filtros explícitamente seleccionados
+          currentUser: req.user,
         });
       } catch (err) {
-        console.error('Error al obtener tareas o datos relacionados:', err);
-        if (err.stack) console.error(err.stack);
-        req.flash('error', i18next.t('flash.common.error.loadFailed', { resource: 'tasks' }));
-        reply.redirect(app.reverse('root'));
+        console.error('Error al obtener tareas:', err);
+        req.flash('error', 'Failed to load tasks');
+        return reply.redirect(app.reverse('root'));
       }
-      return reply; // Fastify maneja el envío de la respuesta
     })
 
-    // 2. Formulario para crear una nueva tarea
-    .get('/tasks/new', { name: 'newTask', preValidation: app.authenticate }, async (req, reply) => {
+    // 2. Formulario para crear una tarea
+    .get('/tasks/new', {
+      name: 'newTask',
+      preValidation: app.authenticate,
+    }, async (req, reply) => {
       try {
-        const [statuses, users, labels] = await Promise.all([
-          app.objection.models.taskStatus.query(),
-          app.objection.models.user.query(),
-          app.objection.models.label.query(),
-        ]);
-        const task = new app.objection.models.task(); // Para los valores por defecto del formulario
-        reply.render('tasks/new', {
-          task, statuses, users, labels, errors: {}, // Pasar errors vacío
+        const task = new app.objection.models.task();
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
+
+        return reply.render('tasks/new', {
+          task,
+          statuses,
+          users,
+          labels,
+          currentUser: req.user,
+          errors: {}, // Agregar errors vacío por defecto
         });
       } catch (err) {
         console.error('Error al cargar formulario de nueva tarea:', err);
-        req.flash('error', i18next.t('flash.common.error.loadFailed', { resource: 'new task form' }));
-        reply.redirect(app.reverse('tasks'));
+        req.flash('error', 'Failed to load task form');
+        return reply.redirect(app.reverse('tasks'));
       }
-      return reply;
     })
 
-    // 3. Crear una tarea
-    .post('/tasks', { preValidation: app.authenticate }, async (req, reply) => {
-      const { data: formData } = req.body;
-      // Normalizar labelIds: asegurarse de que sea un array de números
-      const labelIds = normalizeMultiSelect(formData.labels);
-
-      const taskDataForGraph = {
-        creatorId: req.user.id,
-        statusId: Number(formData.statusId), // El schema requiere que sea un número
-        executorId: formData.executorId ? Number(formData.executorId) : null,
-        name: formData.name,
-        description: formData.description,
-        // Para insertGraph con { relate: true }, pasamos los IDs de las etiquetas a relacionar
-        labels: labelIds.map(id => ({ id })), // Formato esperado por insertGraph para relacionar existentes
-      };
-
+    // 3. Ver detalles de una tarea
+    .get('/tasks/:id', {
+      name: 'showTask',
+    }, async (req, reply) => {
       try {
-        // insertGraph valida contra el jsonSchema de Task y luego intenta insertar
-        // el grafo (tarea + relaciones con etiquetas existentes).
-        await app.objection.models.task.query()
-          .insertGraph(taskDataForGraph, { relate: ['labels'] }); // Relacionar etiquetas existentes por ID
-
-        req.flash('info', i18next.t('flash.task.create.success'));
-        reply.redirect(app.reverse('tasks'));
-      } catch (err) { // err podría ser ValidationError u otro error de DB
-        console.error('Error al crear tarea con insertGraph:', err.data || err.message);
-        req.flash('error', i18next.t('flash.task.create.error'));
-
-        const [statuses, users, labels] = await Promise.all([
-          app.objection.models.taskStatus.query(),
-          app.objection.models.user.query(),
-          app.objection.models.label.query(),
-        ]);
-        
-        const taskInstance = new app.objection.models.task();
-        taskInstance.$set(formData); // Repoblar con los datos originales del formulario
-
-        // El código 422 es más apropiado para errores de validación.
-        // Si tus otros tests esperan 200, podrías necesitar ajustar.
-        reply.code(err.name === 'ValidationError' ? 422 : 500);
-        reply.render('tasks/new', {
-          task: taskInstance, // Pasar la instancia con los datos del formulario
-          errors: err.data || { general: { message: 'An unexpected error occurred.' } },
-          statuses,
-          users,
-          labels,
-        });
-      }
-      return reply;
-    })
-
-    // 4. Ver una tarea específica
-    .get('/tasks/:id', { name: 'task', preValidation: app.authenticate }, async (req, reply) => { // Cambiado el nombre de ruta a 'task'
-      try {
+        const { id } = req.params;
         const task = await app.objection.models.task.query()
-          .findById(req.params.id)
+          .findById(id)
           .withGraphJoined('[status, creator, executor, labels]');
 
         if (!task) {
-          req.flash('error', i18next.t('flash.task.view.errorNotFound'));
-          return reply.redirect(app.reverse('tasks'));
-        }
-        reply.render('tasks/show', { task });
-      } catch (err) {
-        console.error('Error al ver tarea:', err);
-        req.flash('error', i18next.t('flash.common.error.unexpected'));
-        reply.redirect(app.reverse('tasks'));
-      }
-      return reply;
-    })
-
-    // 5. Formulario para editar una tarea
-    .get('/tasks/:id/edit', { name: 'editTask', preValidation: app.authenticate }, async (req, reply) => {
-      try {
-        const [taskFromDb, statuses, users, allLabels] = await Promise.all([
-          app.objection.models.task.query().findById(req.params.id).withGraphFetched('labels'),
-          app.objection.models.taskStatus.query(),
-          app.objection.models.user.query(),
-          app.objection.models.label.query(),
-        ]);
-
-        if (!taskFromDb) {
-          req.flash('error', i18next.t('flash.task.view.errorNotFound'));
+          req.flash('error', i18next.t('flash.task.view.error'));
           return reply.redirect(app.reverse('tasks'));
         }
 
-        if (taskFromDb.creatorId !== req.user.id) {
-          req.flash('error', i18next.t('flash.task.authError'));
-          return reply.redirect(app.reverse('tasks'));
-        }
-        
-        // Preparar datos para el formulario, incluyendo los IDs de las etiquetas seleccionadas
-        const taskDataForForm = {
-          ...taskFromDb,
-          labels: taskFromDb.labels ? taskFromDb.labels.map(({ id }) => id) : [],
-        };
-
-        reply.render('tasks/edit', {
-          task: taskDataForForm,
-          statuses,
-          users,
-          labels: allLabels, // Pasar todas las etiquetas disponibles para el select
-          errors: {},
+        return reply.render('tasks/show', {
+          task,
+          currentUser: req.user,
         });
       } catch (err) {
-         console.error('Error al cargar formulario de edición de tarea:', err);
-        req.flash('error', i18next.t('flash.common.error.loadFailed', { resource: 'task edit form' }));
-        reply.redirect(app.reverse('tasks'));
+        console.error('Error al ver detalles de tarea:', err);
+        req.flash('error', 'Failed to view task details');
+        return reply.redirect(app.reverse('tasks'));
       }
-      return reply;
     })
-    
-    // 6. Actualizar una tarea
-    .patch('/tasks/:id', { name: 'updateTask', preValidation: app.authenticate }, async (req, reply) => {
-      const { id: taskId } = req.params;
-      const { data: formData } = req.body;
-      const labelIds = normalizeMultiSelect(formData.labels);
 
-      const task = await app.objection.models.task.query().findById(taskId);
-      if (!task) {
-        req.flash('error', i18next.t('flash.task.view.errorNotFound'));
-        return reply.redirect(app.reverse('tasks'));
-      }
-      if (task.creatorId !== req.user.id) {
-        req.flash('error', i18next.t('flash.task.authError'));
-        return reply.redirect(app.reverse('tasks'));
-      }
-
-      const taskDataForGraph = {
-        id: Number(taskId), // upsertGraph necesita el ID
-        // creatorId no se actualiza
-        statusId: Number(formData.statusId),
-        name: formData.name,
-        description: formData.description,
-        executorId: formData.executorId ? Number(formData.executorId) : null,
-        // Para upsertGraph, pasamos objetos completos para relaciones si queremos crearlas/actualizarlas,
-        // o solo IDs si queremos relacionar existentes.
-        labels: labelIds.map(id => ({ id: Number(id) })), // Relacionar etiquetas existentes por ID
-      };
-
+    // 4. Formulario para editar una tarea
+    .get('/tasks/:id/edit', {
+      name: 'editTask',
+      preValidation: app.authenticate,
+    }, async (req, reply) => {
       try {
-        // upsertGraph es poderoso: actualiza la tarea y maneja las relaciones de etiquetas.
-        // { relate: true, unrelate: true } asegura que las etiquetas se sincronicen.
-        // noDelete: true para las etiquetas significa que no eliminará etiquetas de la tabla 'labels', solo de la unión.
-        await app.objection.models.task.query()
-          .upsertGraph(taskDataForGraph, { relate: true, unrelate: true, noDelete: true });
+        const { id } = req.params;
+        const task = await app.objection.models.task.query()
+          .findById(id)
+          .withGraphJoined('labels');
 
-        req.flash('info', i18next.t('flash.task.edit.success'));
-        reply.redirect(app.reverse('tasks'));
-      } catch (err) { // Puede ser ValidationError u otro error
-        console.error(`Error al actualizar tarea ${taskId} con upsertGraph:`, err.data || err.message);
-        req.flash('error', i18next.t('flash.task.edit.error'));
+        if (!task) {
+          req.flash('error', i18next.t('flash.task.view.error'));
+          return reply.redirect(app.reverse('tasks'));
+        }
 
-        const [statuses, users, labels] = await Promise.all([
-          app.objection.models.taskStatus.query(),
-          app.objection.models.user.query(),
-          app.objection.models.label.query(),
-        ]);
-        
-        // Repoblar el task para el formulario con los datos que se intentaron enviar y los errores
-        const taskForForm = { ...task, ...formData, id: Number(taskId), labels: labelIds };
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
 
-        reply.code(err.name === 'ValidationError' ? 422 : 500);
-        reply.render('tasks/edit', {
-          task: taskForForm,
-          errors: err.data || { general: { message: 'An unexpected error occurred.' } },
+        return reply.render('tasks/edit', {
+          task,
           statuses,
           users,
           labels,
+          currentUser: req.user,
+          errors: {}, // Agregar errors vacío por defecto
+        });
+      } catch (err) {
+        console.error('Error al cargar formulario de edición:', err);
+        req.flash('error', 'Failed to load edit form');
+        return reply.redirect(app.reverse('tasks'));
+      }
+    })
+
+    // 5. Crear una tarea
+    .post('/tasks', {
+      name: 'createTask',
+      preValidation: app.authenticate,
+    }, async (req, reply) => {
+      console.log('=== INICIO DE CREACIÓN DE TAREA ===');
+      console.log('Cuerpo completo de la solicitud:', req.body);
+      console.log('Datos del formulario:', req.body.data);
+      
+      try {
+        // Verificar si los campos requeridos están vacíos ANTES de continuar
+        const errors = {};
+        const data = req.body.data || {};
+        
+        // Validar campo name
+        if (!data.name || data.name.trim() === '') {
+          errors.name = [{ message: 'must NOT have fewer than 1 characters' }];
+        }
+        
+        // Validar campo statusId
+        if (!data.statusId || data.statusId === '') {
+          errors.statusId = [{ message: 'must be integer' }];
+        }
+        
+        // Si hay errores, renderizar la vista con los errores
+        if (Object.keys(errors).length > 0) {
+          console.log('Errores de validación encontrados:', errors);
+          
+          const statuses = await app.objection.models.taskStatus.query();
+          const users = await app.objection.models.user.query();
+          const labels = await app.objection.models.label.query();
+          
+          req.flash('error', i18next.t('flash.task.create.error'));
+          
+          return reply.render('tasks/new', {
+            task: data,
+            statuses,
+            users,
+            labels,
+            currentUser: req.user,
+            errors,
+          });
+        }
+        
+        // Si no hay errores, continuar con la creación normal
+        const task = new app.objection.models.task();
+        
+        // Extraer los IDs de etiquetas del formulario
+        const labelIds = data.labels
+          ? _.castArray(data.labels).map(Number)
+          : [];
+
+        // Eliminar labels del objeto data para la creación de la tarea
+        const { labels, ...taskData } = data;
+
+        // Convertir strings a números para los campos que lo requieren
+        if (taskData.statusId) {
+          taskData.statusId = Number(taskData.statusId);
+        }
+        if (taskData.executorId) {
+          taskData.executorId = taskData.executorId ? Number(taskData.executorId) : null;
+        }
+
+        // Configurar la tarea con los datos
+        task.$set({ ...taskData, creatorId: req.user.id });
+        
+        console.log('Objeto task antes de validar:', task);
+        
+        // Validar el modelo
+        await task.$validate();
+        console.log('Validación exitosa');
+
+        const trx = await app.objection.models.task.startTransaction();
+
+        try {
+          const validTask = await app.objection.models.task.query(trx).insert(task);
+          console.log('Tarea creada exitosamente:', validTask);
+
+          // Asociar etiquetas a la tarea
+          if (labelIds.length > 0) {
+            const labelRelations = labelIds.map((labelId) => ({
+              task_id: validTask.id,
+              label_id: labelId,
+            }));
+
+            await trx('tasks_labels').insert(labelRelations);
+            console.log('Etiquetas asociadas exitosamente');
+          }
+
+          await trx.commit();
+
+          req.flash('info', i18next.t('flash.task.create.success'));
+          return reply.redirect(app.reverse('tasks'));
+        } catch (err) {
+          await trx.rollback();
+          throw err;
+        }
+      } catch (err) {
+        console.error('Error al crear tarea:', err);
+        console.error('Detalles del error:', err.data);
+        
+        req.flash('error', i18next.t('flash.task.create.error'));
+
+        // Obtener datos necesarios para renderizar la vista
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
+
+        console.log('Renderizando vista con errores:', err.data);
+
+        return reply.render('tasks/new', {
+          task: req.body.data || {}, // Usar los datos del formulario
+          statuses,
+          users,
+          labels,
+          currentUser: req.user,
+          errors: err.data || {},
         });
       }
-      return reply;
+    })
+
+    // 6. Actualizar una tarea
+    .patch('/tasks/:id', {
+      name: 'updateTask',
+      preValidation: app.authenticate,
+    }, async (req, reply) => {
+      try {
+        const { id } = req.params;
+        const task = await app.objection.models.task.query().findById(id);
+
+        if (!task) {
+          req.flash('error', i18next.t('flash.task.edit.error'));
+          return reply.redirect(app.reverse('tasks'));
+        }
+
+        const trx = await app.objection.models.task.startTransaction();
+
+        try {
+          // Extraer los IDs de etiquetas del formulario
+          const labelIds = req.body.data.labels
+            ? _.castArray(req.body.data.labels).map(Number)
+            : [];
+
+          // Eliminar labels del objeto data para la actualización de la tarea
+          const { labels, ...taskData } = req.body.data;
+
+          // Convertir IDs a números
+          if (taskData.statusId) {
+            taskData.statusId = Number(taskData.statusId);
+          }
+          if (taskData.executorId) {
+            taskData.executorId = taskData.executorId ? Number(taskData.executorId) : null;
+          }
+
+          // Actualizar la tarea
+          await task.$query(trx).patch(taskData);
+
+          // Eliminar todas las relaciones existentes con etiquetas
+          await trx('tasks_labels').where('task_id', id).delete();
+
+          // Crear nuevas relaciones con etiquetas
+          if (labelIds.length > 0) {
+            const labelRelations = labelIds.map((labelId) => ({
+              task_id: id,
+              label_id: labelId,
+            }));
+
+            await trx('tasks_labels').insert(labelRelations);
+          }
+
+          await trx.commit();
+
+          req.flash('info', i18next.t('flash.task.edit.success'));
+          return reply.redirect(app.reverse('tasks'));
+        } catch (err) {
+          await trx.rollback();
+          throw err;
+        }
+      } catch (err) {
+        console.error('Error al actualizar tarea:', err);
+        req.flash('error', i18next.t('flash.task.edit.error'));
+
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
+        const taskWithLabels = await app.objection.models.task.query()
+          .findById(req.params.id)
+          .withGraphJoined('labels');
+
+        return reply.render('tasks/edit', {
+          task: { ...taskWithLabels, ...req.body.data },
+          statuses,
+          users,
+          labels,
+          currentUser: req.user,
+          errors: err.data || {},
+        });
+      }
     })
 
     // 7. Eliminar una tarea
-    .delete('/tasks/:id', { name: 'deleteTask', preValidation: app.authenticate }, async (req, reply) => { // Agregado 'deleteTask' como nombre de ruta
-      const task = await app.objection.models.task.query().findById(req.params.id);
+    .delete('/tasks/:id', {
+      name: 'deleteTask',
+      preValidation: [app.authenticate, checkTaskOwnership],
+    }, async (req, reply) => {
+      try {
+        const { id } = req.params;
+        console.log(`Eliminando tarea con ID ${id}`);
 
-      if (!task) {
-          req.flash('error', i18next.t('flash.task.view.errorNotFound'));
+        const trx = await app.objection.models.task.startTransaction();
+
+        try {
+          // Eliminar las relaciones con etiquetas primero
+          await trx('tasks_labels').where('task_id', id).delete();
+
+          // Eliminar la tarea
+          await app.objection.models.task.query(trx).deleteById(id);
+
+          await trx.commit();
+
+          req.flash('info', i18next.t('flash.task.delete.success'));
           return reply.redirect(app.reverse('tasks'));
-      }
-      if (task.creatorId !== req.user.id) {
-        req.flash('error', i18next.t('flash.task.authError')); // Clave genérica de autorización
+        } catch (err) {
+          await trx.rollback();
+          throw err;
+        }
+      } catch (err) {
+        console.error('Error al eliminar tarea:', err);
+        req.flash('error', i18next.t('flash.task.delete.error'));
         return reply.redirect(app.reverse('tasks'));
       }
-
-      try {
-        // No es estrictamente necesario una transacción para desrelacionar y borrar uno, pero no hace daño
-        await task.$relatedQuery('labels').unrelate(); // Desvincular todas las etiquetas
-        await task.$query().delete(); // Eliminar la tarea
-        req.flash('info', i18next.t('flash.task.delete.success'));
-      } catch (err) {
-        console.error(`Error al eliminar tarea ${req.params.id}:`, err);
-        req.flash('error', i18next.t('flash.task.delete.errorDB') || 'Failed to delete task.'); // Clave más específica para error de DB
-      }
-      reply.redirect(app.reverse('tasks'));
-      return reply;
     })
-    
-    // Ruta para simular DELETE vía POST (para formularios HTML)
-    // Asegúrate de que el nombre 'postDeleteTask' sea el que espera tu vista index.pug
-    .post('/tasks/:id', { name: 'postDeleteTask', preValidation: app.authenticate }, async (req, reply) => {
-        const { id } = req.params;
-        // eslint-disable-next-line no-underscore-dangle
-        if (req.body && req.body._method === 'DELETE') {
-            const task = await app.objection.models.task.query().findById(id);
-            if (!task) {
-                req.flash('error', i18next.t('flash.task.view.errorNotFound'));
-                return reply.redirect(app.reverse('tasks'));
-            }
-            if (req.user.id !== task.creatorId) {
-                req.flash('error', i18next.t('flash.task.authError'));
-                return reply.redirect(app.reverse('tasks'));
-            }
-            try {
-                await task.$relatedQuery('labels').unrelate();
-                await task.$query().delete();
-                req.flash('info', i18next.t('flash.task.delete.success'));
-            } catch (err) {
-                console.error(`Error al eliminar tarea ${id} (vía POST):`, err);
-                req.flash('error', i18next.t('flash.task.delete.errorDB') || 'Failed to delete task via POST.');
-            }
+
+    // Añadir ruta POST adicional para manejar DELETE
+    .post('/tasks/:id', {
+      name: 'postDeleteTask',
+      preValidation: [app.authenticate],
+    }, async (req, reply) => {
+      // Esta ruta manejará los formularios que hacen POST en lugar de DELETE
+      // eslint-disable-next-line no-underscore-dangle
+      if (req.body && req.body._method === 'DELETE') {
+        try {
+          const { id } = req.params;
+
+          // Verificar manualmente si el usuario es el propietario
+          const task = await app.objection.models.task.query().findById(id);
+
+          if (!task) {
+            req.flash('error', i18next.t('flash.task.view.error'));
             return reply.redirect(app.reverse('tasks'));
+          }
+
+          // Verificar explícitamente que el usuario sea el creador
+          if (req.user.id !== task.creatorId) {
+            req.flash('error', i18next.t('flash.task.delete.error'));
+            return reply.redirect(app.reverse('tasks'));
+          }
+
+          console.log(`Eliminando tarea con ID ${id} (método POST)`);
+
+          const trx = await app.objection.models.task.startTransaction();
+
+          try {
+            // Eliminar las relaciones con etiquetas primero
+            await trx('tasks_labels').where('task_id', id).delete();
+
+            // Eliminar la tarea
+            await app.objection.models.task.query(trx).deleteById(id);
+
+            await trx.commit();
+
+            req.flash('info', i18next.t('flash.task.delete.success'));
+            return reply.redirect(app.reverse('tasks'));
+          } catch (err) {
+            await trx.rollback();
+            throw err;
+          }
+        } catch (err) {
+          console.error('Error al eliminar tarea:', err);
+          req.flash('error', i18next.t('flash.task.delete.error'));
+          return reply.redirect(app.reverse('tasks'));
         }
-        // Si no es un DELETE simulado, podría ser un error o una ruta no manejada
-        reply.code(400).send('Invalid action for POST /tasks/:id');
-        return reply;
+      }
+      // No es una solicitud de eliminación, rechazar
+      return reply.code(400).send({ error: 'Bad Request' });
     });
 };
