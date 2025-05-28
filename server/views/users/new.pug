@@ -14,6 +14,9 @@ block content
         value=user.firstName || ''
         placeholder=t('views.user.firstName')
       )
+      if errors && errors.firstName
+        .invalid-feedback.d-block= errors.firstName[0].message
+    
     .mb-3
       label(for="data_lastName")= t('views.user.lastName')
       input(
@@ -24,6 +27,9 @@ block content
         value=user.lastName || ''
         placeholder=t('views.user.lastName')
       )
+      if errors && errors.lastName
+        .invalid-feedback.d-block= errors.lastName[0].message
+    
     .mb-3
       label(for="data_email")= t('views.user.email')
       input(
@@ -34,6 +40,9 @@ block content
         value=user.email || ''
         placeholder=t('views.user.email')
       )
+      if errors && errors.email
+        .invalid-feedback.d-block= errors.email[0].message
+    
     .mb-3
       label(for="data_password")= t('views.user.password')
       input(
@@ -43,4 +52,7 @@ block content
         type="password"
         placeholder=t('views.user.password')
       )
+      if errors && errors.password
+        .invalid-feedback.d-block= errors.password[0].message
+    
     button.btn.btn-primary(type="submit")= t('views.user.new.submit')
