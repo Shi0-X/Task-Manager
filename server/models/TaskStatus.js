@@ -15,10 +15,18 @@ export default class TaskStatus extends BaseModel {
       required: ['name'],
       properties: {
         id: { type: 'integer' },
-        name: { type: 'string', minLength: 1 },
+        name: { 
+          type: 'string', 
+          minLength: 1,
+          // Agregar mensaje de error personalizado si es necesario
+          errorMessage: {
+            minLength: 'El nombre no puede estar vacío'
+          }
+        },
         createdAt: { type: 'string' },
         updatedAt: { type: 'string' },
       },
+      additionalProperties: false,
     };
   }
 

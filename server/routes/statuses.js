@@ -13,7 +13,7 @@ export default (app) => {
       preValidation: app.authenticate,
     }, (req, reply) => {
       const status = new app.objection.models.taskStatus();
-      reply.render('statuses/new', { status });
+      reply.render('statuses/new', { status, errors: {} });
       return reply;
     })
     .post('/statuses', {
@@ -24,6 +24,7 @@ export default (app) => {
 
       const status = new app.objection.models.taskStatus();
 
+      // Preparar datos antes del try-catch
       if (req.body.data) {
         console.log('Datos del formulario (creación):', req.body.data);
         status.$set(req.body.data);
@@ -35,16 +36,26 @@ export default (app) => {
       console.log('Objeto status antes de insertar:', status);
 
       try {
+        // CAMBIO CLAVE: Validar ANTES de insertar
+        await status.$validate();
+        
         const validStatus = await app.objection.models.taskStatus.query().insert(status);
         console.log('Status insertado correctamente:', validStatus);
         req.flash('info', i18next.t('flash.statuses.create.success'));
         reply.redirect(app.reverse('statuses'));
         return reply;
       } catch (err) {
-        console.error('Error al insertar status:', err);
+        console.error('Error al validar/insertar status:', err);
         console.error('Mensaje de error:', err.message);
+        console.error('Datos de error:', err.data);
+        
         req.flash('error', i18next.t('flash.statuses.create.error'));
-        reply.render('statuses/new', { status, errors: err.data });
+        
+        // Renderizar la vista con errores
+        reply.render('statuses/new', { 
+          status, 
+          errors: err.data || {} 
+        });
         return reply;
       }
     })
@@ -55,7 +66,7 @@ export default (app) => {
       const { id } = req.params;
       const status = await app.objection.models.taskStatus.query().findById(id);
       console.log('Estado encontrado para el formulario de edición:', status);
-      reply.render('statuses/edit', { status });
+      reply.render('statuses/edit', { status, errors: {} });
       return reply;
     })
     .patch('/statuses/:id', {
