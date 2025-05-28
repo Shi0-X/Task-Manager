@@ -3,7 +3,7 @@ extends ../layouts/application.pug
 block content
   h1.my-4= t('views.taskStatus.new.creating')
 
-  +formFor()(action=route('createStatus') method='post')
+  form(action=route('createStatus') method='post')
     .mb-3
       label(for="data_name")= t('views.taskStatus.new.name')
       input(
