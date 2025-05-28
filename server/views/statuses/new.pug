@@ -1,17 +1,20 @@
 extends ../layouts/application.pug
 
 block content
-  h1.my-4 Create status
+  h1.my-4= t('views.taskStatus.new.creating')
 
   +formFor()(action=route('createStatus') method='post')
     .mb-3
-      label(for="data_name") Name
+      label(for="data_name")= t('views.taskStatus.new.name')
       input(
         id="data_name"
         name="data[name]"
         class="form-control"
         value=status.name || ''
       )
-    button(type="submit" class="btn btn-primary mt-3") Create
+      if errors && errors.name
+        .invalid-feedback.d-block= errors.name[0].message
+    
+    button(type="submit" class="btn btn-primary mt-3")= t('views.taskStatus.new.submit')
   
-  a.btn.btn-outline-primary.mt-3(href=route('statuses')) Statuses
+  a.btn.btn-outline-primary.mt-3(href=route('statuses'))= t('layouts.application.statuses')
