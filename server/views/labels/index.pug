@@ -1,7 +1,7 @@
 extends ../layouts/application.pug
 
 block content
-  h1.my-4= t('views.label.id')
+  h1.my-4= t('layouts.application.labels')
   
   if isAuthenticated()
     a.btn.btn-primary.mb-4(href=route('newLabel'))= t('views.label.create')
@@ -23,7 +23,7 @@ block content
           if isAuthenticated()
             td.text-center
               a.btn.btn-sm.btn-secondary.me-1(href=route('editLabel', { id: label.id }))
-                = t('views.label.edit.link')
+                = t('links.edit.name')
               form.d-inline-block(action=route('deleteLabel', { id: label.id }) method='post')
                 input(name='_method' type='hidden' value='DELETE')
-                button.btn.btn-sm.btn-danger(type='submit')= t('views.label.delete.submit')
+                button.btn.btn-sm.btn-danger(type='submit')= t('buttons.delete.name')
