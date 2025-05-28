@@ -20,11 +20,11 @@ export default {
         },
         edit: {
           error: 'No se pudo actualizar el usuario',
-          success: 'Usuario actualizado exitosamente',
+          success: 'Usuario actualizado con éxito',
         },
         delete: {
           error: 'No se pudo eliminar el usuario',
-          success: 'Usuario eliminado exitosamente',
+          success: 'Usuario eliminado con éxito',
           hasTasks: 'El usuario tiene tareas asociadas',
         },
         accessError: 'No puedes editar o eliminar otro usuario',
@@ -32,30 +32,30 @@ export default {
       statuses: {
         create: {
           error: 'No se pudo crear el estado',
-          success: 'Estado creado exitosamente',
+          success: 'Estado creado con éxito',
         },
         edit: {
           error: 'No se pudo actualizar el estado',
-          success: 'Estado actualizado exitosamente',
+          success: 'Estado actualizado con éxito',
         },
         delete: {
           error: 'No se pudo eliminar el estado',
-          success: 'Estado eliminado exitosamente',
+          success: 'Estado eliminado con éxito',
           hasTasks: 'El estado está asignado a algunas tareas',
         },
       },
       task: {
         create: {
           error: 'No se pudo crear la tarea',
-          success: 'Tarea creada exitosamente',
+          success: 'Tarea creada con éxito',
         },
         edit: {
           error: 'No se pudo actualizar la tarea',
-          success: 'Tarea actualizada exitosamente',
+          success: 'Tarea actualizada con éxito',
         },
         delete: {
           error: 'Solo el autor puede eliminar la tarea',
-          success: 'Tarea eliminada exitosamente',
+          success: 'Tarea eliminada con éxito',
         },
         view: {
           error: 'Tarea no encontrada',
@@ -64,15 +64,15 @@ export default {
       label: {
         create: {
           error: 'No se pudo crear la etiqueta',
-          success: 'Etiqueta creada exitosamente',
+          success: 'Etiqueta creada con éxito',
         },
         edit: {
           error: 'No se pudo actualizar la etiqueta',
-          success: 'Etiqueta actualizada exitosamente',
+          success: 'Etiqueta actualizada con éxito',
         },
         delete: {
           error: 'No se puede eliminar la etiqueta ya que está asignada a tareas',
-          success: 'Etiqueta eliminada exitosamente',
+          success: 'Etiqueta eliminada con éxito',
         },
       },
       authError: 'Acceso denegado! Por favor inicia sesión.',
