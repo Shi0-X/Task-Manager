@@ -206,6 +206,14 @@ export default (app) => {
         // Eliminar labels del objeto data para la creación de la tarea
         const { labels, ...taskData } = req.body.data;
 
+        // Convertir strings a números para los campos que lo requieren
+        if (taskData.statusId) {
+          taskData.statusId = Number(taskData.statusId);
+        }
+        if (taskData.executorId) {
+          taskData.executorId = taskData.executorId ? Number(taskData.executorId) : null;
+        }
+
         // Configurar la tarea con los datos
         task.$set({ ...taskData, creatorId: req.user.id });
         
