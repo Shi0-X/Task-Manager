@@ -58,6 +58,7 @@ export default (app) => {
         });
       } catch (err) {
         console.error('Error al obtener tareas:', err);
+        // Usar una clave genérica si no hay una específica para 'tasks' en plural para errores de carga
         req.flash('error', i18next.t('flash.common.error.loadFailed', { resource: 'tasks' }) || 'Failed to load tasks.');
         return reply.redirect(app.reverse('root'));
       }
@@ -101,7 +102,7 @@ export default (app) => {
           .withGraphJoined('[status, creator, executor, labels]');
 
         if (!task) {
-          req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.');
+          req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.'); // Usa 'flash.task...'
           return reply.redirect(app.reverse('tasks'));
         }
 
@@ -128,12 +129,12 @@ export default (app) => {
           .withGraphFetched('labels');
 
         if (!task) {
-          req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.');
+          req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.'); // Usa 'flash.task...'
           return reply.redirect(app.reverse('tasks'));
         }
 
         if (req.user.id !== task.creatorId) {
-          req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to edit this task.');
+          req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to edit this task.'); // Usa 'flash.task...'
           return reply.redirect(app.reverse('tasks'));
         }
 
@@ -190,7 +191,7 @@ export default (app) => {
           }
 
           await trx.commit();
-          req.flash('info', i18next.t('flash.tasks.create.success'));
+          req.flash('info', i18next.t('flash.task.create.success')); // *** CAMBIO AQUÍ: task (singular) ***
           return reply.redirect(app.reverse('tasks'));
 
         } catch (dbOrRelationError) {
@@ -199,7 +200,7 @@ export default (app) => {
           if (dbOrRelationError.name === 'ValidationError') {
             throw dbOrRelationError;
           }
-          req.flash('error', i18next.t('flash.tasks.create.errorDB', { message: dbOrRelationError.message }) || 'Database error during task creation.');
+          req.flash('error', i18next.t('flash.task.create.errorDB', { message: dbOrRelationError.message }) || 'Database error during task creation.'); // *** CAMBIO AQUÍ: task (singular) ***
           const statuses = await app.objection.models.taskStatus.query();
           const users = await app.objection.models.user.query();
           const labels = await app.objection.models.label.query();
@@ -210,13 +211,13 @@ export default (app) => {
             users,
             labels,
             currentUser: req.user,
-            errors: { general: [{ message: i18next.t('flash.tasks.create.errorDB') || 'A database error occurred.' }] },
+            errors: { general: [{ message: i18next.t('flash.task.create.errorDB') || 'A database error occurred.' }] }, // *** CAMBIO AQUÍ: task (singular) ***
           });
         }
       } catch (validationError) {
         if (validationError.name === 'ValidationError') {
           console.error('Error de validación al crear tarea (Objection):', JSON.stringify(validationError.data, null, 2));
-          req.flash('error', i18next.t('flash.tasks.create.error'));
+          req.flash('error', i18next.t('flash.task.create.error')); // *** CAMBIO AQUÍ: task (singular) ***
 
           const statuses = await app.objection.models.taskStatus.query();
           const users = await app.objection.models.user.query();
@@ -249,11 +250,11 @@ export default (app) => {
 
       const taskToUpdate = await app.objection.models.task.query().findById(id);
       if (!taskToUpdate) {
-        req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.');
+        req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.'); // Usa 'flash.task...'
         return reply.redirect(app.reverse('tasks'));
       }
       if (req.user.id !== taskToUpdate.creatorId) {
-        req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to update this task.');
+        req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to update this task.'); // Usa 'flash.task...'
         return reply.redirect(app.reverse('tasks'));
       }
 
@@ -282,7 +283,7 @@ export default (app) => {
           }
 
           await trx.commit();
-          req.flash('info', i18next.t('flash.task.edit.success'));
+          req.flash('info', i18next.t('flash.task.edit.success')); // *** CAMBIO AQUÍ: task (singular) ***
           return reply.redirect(app.reverse('tasks'));
 
         } catch (dbOrRelationError) {
@@ -291,7 +292,7 @@ export default (app) => {
           if (dbOrRelationError.name === 'ValidationError') {
             throw dbOrRelationError;
           }
-          req.flash('error', i18next.t('flash.tasks.edit.errorDB', { message: dbOrRelationError.message }) || 'Database error during task update.');
+          req.flash('error', i18next.t('flash.task.edit.errorDB', { message: dbOrRelationError.message }) || 'Database error during task update.'); // *** CAMBIO AQUÍ: task (singular) ***
           
           const statuses = await app.objection.models.taskStatus.query();
           const users = await app.objection.models.user.query();
@@ -303,13 +304,13 @@ export default (app) => {
             users,
             labels: allLabels,
             currentUser: req.user,
-            errors: { general: [{ message: i18next.t('flash.tasks.edit.errorDB') || 'A database error occurred.' }] },
+            errors: { general: [{ message: i18next.t('flash.task.edit.errorDB') || 'A database error occurred.' }] }, // *** CAMBIO AQUÍ: task (singular) ***
           });
         }
       } catch (validationError) {
         if (validationError.name === 'ValidationError') {
           console.error('Error de validación al actualizar tarea:', JSON.stringify(validationError.data, null, 2));
-          req.flash('error', i18next.t('flash.tasks.edit.error'));
+          req.flash('error', i18next.t('flash.task.edit.error')); // *** CAMBIO AQUÍ: task (singular) ***
           
           const statuses = await app.objection.models.taskStatus.query();
           const users = await app.objection.models.user.query();
@@ -341,11 +342,11 @@ export default (app) => {
       const task = await app.objection.models.task.query().findById(id);
 
       if (!task) {
-        req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.');
+        req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.'); // Usa 'flash.task...'
         return reply.redirect(app.reverse('tasks'));
       }
       if (req.user.id !== task.creatorId) {
-        req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to delete this task.');
+        req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to delete this task.'); // Usa 'flash.task...'
         return reply.redirect(app.reverse('tasks'));
       }
 
@@ -355,7 +356,7 @@ export default (app) => {
           await task.$relatedQuery('labels', trx).unrelate();
           await app.objection.models.task.query(trx).deleteById(id);
           await trx.commit();
-          req.flash('info', i18next.t('flash.task.delete.success'));
+          req.flash('info', i18next.t('flash.task.delete.success')); // *** CAMBIO AQUÍ: task (singular) ***
         } catch (err) {
           await trx.rollback();
           throw err;
@@ -363,14 +364,14 @@ export default (app) => {
         return reply.redirect(app.reverse('tasks'));
       } catch (err) {
         console.error(`Error al eliminar tarea ${id}:`, err);
-        req.flash('error', i18next.t('flash.task.delete.errorDB', { message: err.message }) || 'Error deleting task.');
+        req.flash('error', i18next.t('flash.task.delete.errorDB', { message: err.message }) || 'Error deleting task.'); // *** CAMBIO AQUÍ: task (singular) ***
         return reply.redirect(app.reverse('tasks'));
       }
     })
 
     // Ruta para simular acciones como DELETE vía POST
     .post('/tasks/:id', {
-      name: 'postDeleteTask', // *** CAMBIO AQUÍ: Nombre de ruta corregido ***
+      name: 'postDeleteTask',
       preValidation: [app.authenticate],
     }, async (req, reply) => {
       const { id } = req.params;
@@ -378,11 +379,11 @@ export default (app) => {
       if (req.body && req.body._method === 'DELETE') {
         const task = await app.objection.models.task.query().findById(id);
         if (!task) {
-          req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.');
+          req.flash('error', i18next.t('flash.task.view.errorNotFound') || 'Task not found.'); // Usa 'flash.task...'
           return reply.redirect(app.reverse('tasks'));
         }
         if (req.user.id !== task.creatorId) {
-          req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to delete this task.');
+          req.flash('error', i18next.t('flash.task.authError') || 'You are not authorized to delete this task.'); // Usa 'flash.task...'
           return reply.redirect(app.reverse('tasks'));
         }
         try {
@@ -391,7 +392,7 @@ export default (app) => {
             await task.$relatedQuery('labels', trx).unrelate();
             await app.objection.models.task.query(trx).deleteById(id);
             await trx.commit();
-            req.flash('info', i18next.t('flash.task.delete.success'));
+            req.flash('info', i18next.t('flash.task.delete.success')); // *** CAMBIO AQUÍ: task (singular) ***
           } catch (err) {
             await trx.rollback();
             throw err;
@@ -399,7 +400,7 @@ export default (app) => {
           return reply.redirect(app.reverse('tasks'));
         } catch (err) {
           console.error(`Error al eliminar tarea ${id} (vía POST):`, err);
-          req.flash('error', i18next.t('flash.task.delete.errorDB', { message: err.message }) || 'Error deleting task.');
+          req.flash('error', i18next.t('flash.task.delete.errorDB', { message: err.message }) || 'Error deleting task.'); // *** CAMBIO AQUÍ: task (singular) ***
           return reply.redirect(app.reverse('tasks'));
         }
       }
