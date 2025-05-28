@@ -16,7 +16,7 @@ export default {
       user: {
         create: {
           error: 'No se pudo registrar',
-          success: 'Usuario registrado exitosamente',
+          success: 'Usuario registrado con éxito', // ← ÚNICO CAMBIO AQUÍ
         },
         edit: {
           error: 'No se pudo actualizar el usuario',
