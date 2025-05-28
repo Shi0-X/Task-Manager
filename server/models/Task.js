@@ -28,6 +28,7 @@ export default class Task extends BaseModel {
         createdAt: { type: 'string' },
         updatedAt: { type: 'string' },
       },
+      additionalProperties: false,
     };
   }
 
@@ -123,15 +124,15 @@ export default class Task extends BaseModel {
           to: 'users.id',
         },
       },
-      // NUEVA RELACIÓN: Muchos a muchos con etiquetas
+      // RELACIÓN CORREGIDA: Muchos a muchos con etiquetas
       labels: {
         relation: Model.ManyToManyRelation,
         modelClass: Label,
         join: {
           from: 'tasks.id',
           through: {
-            from: 'tasks_labels.taskId',
-            to: 'tasks_labels.labelId',
+            from: 'tasks_labels.task_id',
+            to: 'tasks_labels.label_id',
           },
           to: 'labels.id',
         },
