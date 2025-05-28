@@ -23,9 +23,9 @@ block content
           if isAuthenticated()
             td.text-center
               a.btn.btn-sm.btn-secondary.mx-1(href=route('editStatus', { id: status.id }))
-                = t('views.taskStatus.buttons.edit')
+                = t('links.edit.name')
               
               form(action=route('deleteStatus', { id: status.id }) method='post' style='display: inline-block')
                 input(name='_method' type='hidden' value='DELETE')
                 button.btn.btn-sm.btn-danger.mx-1(type='submit')
-                  = t('views.taskStatus.buttons.delete')
+                  = t('buttons.delete.name')
