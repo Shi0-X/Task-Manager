@@ -77,7 +77,7 @@ block content
           if isAuthenticated()
             td.text-center
               a.btn.btn-sm.btn-secondary.me-1(href=route('editTask', { id: task.id }))
-                = t('views.task.edit.link')
+                = t('links.edit.name')
               if currentUser && currentUser.id === task.creatorId
                 form.d-inline-block(action=route('postDeleteTask', { id: task.id }) method='post')
                   input(name='_method' type='hidden' value='DELETE')
