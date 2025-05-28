@@ -176,6 +176,7 @@ export default (app) => {
           users,
           labels,
           currentUser: req.user,
+          errors: {}, // Agregar errors vacío por defecto
         });
       } catch (err) {
         console.error('Error al cargar formulario de edición:', err);
@@ -192,19 +193,52 @@ export default (app) => {
       console.log('=== INICIO DE CREACIÓN DE TAREA ===');
       console.log('Cuerpo completo de la solicitud:', req.body);
       console.log('Datos del formulario:', req.body.data);
-      console.log('Usuario autenticado: ID:', req.user.id);
-      
-      // Crear la tarea para validación
-      const task = new app.objection.models.task();
       
       try {
+        // Verificar si los campos requeridos están vacíos ANTES de continuar
+        const errors = {};
+        const data = req.body.data || {};
+        
+        // Validar campo name
+        if (!data.name || data.name.trim() === '') {
+          errors.name = [{ message: 'must NOT have fewer than 1 characters' }];
+        }
+        
+        // Validar campo statusId
+        if (!data.statusId || data.statusId === '') {
+          errors.statusId = [{ message: 'must be integer' }];
+        }
+        
+        // Si hay errores, renderizar la vista con los errores
+        if (Object.keys(errors).length > 0) {
+          console.log('Errores de validación encontrados:', errors);
+          
+          const statuses = await app.objection.models.taskStatus.query();
+          const users = await app.objection.models.user.query();
+          const labels = await app.objection.models.label.query();
+          
+          req.flash('error', i18next.t('flash.task.create.error'));
+          
+          return reply.render('tasks/new', {
+            task: data,
+            statuses,
+            users,
+            labels,
+            currentUser: req.user,
+            errors,
+          });
+        }
+        
+        // Si no hay errores, continuar con la creación normal
+        const task = new app.objection.models.task();
+        
         // Extraer los IDs de etiquetas del formulario
-        const labelIds = req.body.data.labels
-          ? _.castArray(req.body.data.labels).map(Number)
+        const labelIds = data.labels
+          ? _.castArray(data.labels).map(Number)
           : [];
 
         // Eliminar labels del objeto data para la creación de la tarea
-        const { labels, ...taskData } = req.body.data;
+        const { labels, ...taskData } = data;
 
         // Convertir strings a números para los campos que lo requieren
         if (taskData.statusId) {
@@ -219,7 +253,7 @@ export default (app) => {
         
         console.log('Objeto task antes de validar:', task);
         
-        // VALIDAR ANTES de insertar - esto es clave
+        // Validar el modelo
         await task.$validate();
         console.log('Validación exitosa');
 
@@ -262,7 +296,7 @@ export default (app) => {
         console.log('Renderizando vista con errores:', err.data);
 
         return reply.render('tasks/new', {
-          task, // Pasar el objeto task con los datos del formulario
+          task: req.body.data || {}, // Usar los datos del formulario
           statuses,
           users,
           labels,

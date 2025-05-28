@@ -23,7 +23,7 @@ export default (app) => {
       preValidation: app.authenticate,
     }, async (req, reply) => {
       const label = new app.objection.models.label();
-      return reply.render('labels/new', { label });
+      return reply.render('labels/new', { label, errors: {} });
     })
 
     // 3. Formulario para editar una etiqueta
@@ -39,7 +39,7 @@ export default (app) => {
         return reply.redirect(app.reverse('labels'));
       }
 
-      return reply.render('labels/edit', { label });
+      return reply.render('labels/edit', { label, errors: {} });
     })
 
     // 4. Crear una etiqueta
@@ -74,13 +74,14 @@ export default (app) => {
           });
         }
 
-        // Verificar esquema JSON antes de insertar
-        console.log('Validando esquema JSON para label...');
+        // Validar el modelo antes de insertar
+        console.log('Validando modelo label...');
         try {
-          const validationResult = await app.objection.models.label.jsonSchema.validate(label);
-          console.log('Resultado de validación de esquema:', validationResult);
+          await label.$validate();
+          console.log('Validación exitosa');
         } catch (validationErr) {
-          console.error('Error de validación de esquema:', validationErr);
+          console.error('Error de validación:', validationErr);
+          throw validationErr;
         }
 
         // Insertar en la base de datos
