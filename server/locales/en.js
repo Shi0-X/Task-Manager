@@ -13,7 +13,7 @@ export default {
           success: 'Has cerrado sesión',
         },
       },
-              user: {
+      user: {
         create: {
           error: 'No se pudo registrar el usuario', // ← CAMBIO AQUÍ
           success: 'Usuario registrado con éxito',

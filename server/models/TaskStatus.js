@@ -15,9 +15,9 @@ export default class TaskStatus extends BaseModel {
       required: ['name'],
       properties: {
         id: { type: 'integer' },
-        name: { 
-          type: 'string', 
-          minLength: 1
+        name: {
+          type: 'string',
+          minLength: 1,
         },
         createdAt: { type: 'string' },
         updatedAt: { type: 'string' },

@@ -196,43 +196,43 @@ export default (app) => {
       console.log('Headers:', req.headers);
       console.log('Cuerpo completo de la solicitud:', JSON.stringify(req.body, null, 2));
       console.log('Datos del formulario:', req.body.data);
-      
+
       // Obtener datos del formulario - IMPORTANTE: manejar cuando es undefined
       const data = req.body.data || {};
-      
+
       // Crear un objeto de errores vacío
       const errors = {};
-      
+
       // Validar campo name ANTES de hacer cualquier otra cosa
       console.log('Validando campo name:', data.name);
       if (!data.name || String(data.name).trim() === '') {
         errors.name = [{ message: 'must NOT have fewer than 1 characters' }];
         console.log('Error en name: campo vacío');
       }
-      
+
       // Validar campo statusId ANTES de hacer cualquier otra cosa
       console.log('Validando campo statusId:', data.statusId);
       if (!data.statusId || data.statusId === '' || data.statusId === null || data.statusId === undefined) {
         errors.statusId = [{ message: 'must be integer' }];
         console.log('Error en statusId: campo vacío');
       }
-      
+
       // Si hay errores de validación, renderizar la vista con los errores
       if (Object.keys(errors).length > 0) {
         console.log('=== ERRORES DE VALIDACIÓN ENCONTRADOS ===');
         console.log('Errores:', JSON.stringify(errors, null, 2));
         console.log('Cantidad de errores:', Object.keys(errors).length);
-        
+
         // Obtener datos necesarios para renderizar la vista
         const statuses = await app.objection.models.taskStatus.query();
         const users = await app.objection.models.user.query();
         const labels = await app.objection.models.label.query();
-        
+
         // IMPORTANTE: Agregar el flash message que espera el test
         req.flash('error', i18next.t('flash.task.create.error'));
-        
+
         console.log('Renderizando vista con errores de validación');
-        
+
         // Renderizar la vista con los errores
         return reply.render('tasks/new', {
           task: data, // Pasar los datos del formulario
@@ -243,12 +243,12 @@ export default (app) => {
           errors, // Pasar los errores de validación
         });
       }
-      
+
       // Si llegamos aquí, no hay errores de validación manual
       // Continuamos con la creación normal de la tarea
       try {
         const task = new app.objection.models.task();
-        
+
         // Extraer los IDs de etiquetas del formulario
         const labelIds = data.labels
           ? _.castArray(data.labels).map(Number)
@@ -267,9 +267,9 @@ export default (app) => {
 
         // Configurar la tarea con los datos
         task.$set({ ...taskData, creatorId: req.user.id });
-        
+
         console.log('Objeto task antes de validar:', task);
-        
+
         // Validar el modelo
         await task.$validate();
         console.log('Validación exitosa');
@@ -302,7 +302,7 @@ export default (app) => {
       } catch (err) {
         console.error('Error al crear tarea:', err);
         console.error('Detalles del error:', err.data);
-        
+
         req.flash('error', i18next.t('flash.task.create.error'));
 
         // Obtener datos necesarios para renderizar la vista

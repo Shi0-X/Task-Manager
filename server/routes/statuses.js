@@ -38,7 +38,7 @@ export default (app) => {
       try {
         // CAMBIO CLAVE: Validar ANTES de insertar
         await status.$validate();
-        
+
         const validStatus = await app.objection.models.taskStatus.query().insert(status);
         console.log('Status insertado correctamente:', validStatus);
         req.flash('info', i18next.t('flash.statuses.create.success'));
@@ -48,13 +48,13 @@ export default (app) => {
         console.error('Error al validar/insertar status:', err);
         console.error('Mensaje de error:', err.message);
         console.error('Datos de error:', err.data);
-        
+
         req.flash('error', i18next.t('flash.statuses.create.error'));
-        
+
         // Renderizar la vista con errores
-        reply.render('statuses/new', { 
-          status, 
-          errors: err.data || {} 
+        reply.render('statuses/new', {
+          status,
+          errors: err.data || {},
         });
         return reply;
       }
