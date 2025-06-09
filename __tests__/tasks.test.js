@@ -12,7 +12,6 @@ import { getTestData, prepareData, signIn } from './helpers/index.js';
 describe('test tasks CRUD', () => {
   let app;
   let knex;
-  let models;
   const testData = getTestData();
 
   beforeAll(async () => {
@@ -24,7 +23,6 @@ describe('test tasks CRUD', () => {
     await init(app);
 
     knex = app.objection.knex;
-    models = app.objection.models;
 
     // Aplicar migraciones primero
     try {
