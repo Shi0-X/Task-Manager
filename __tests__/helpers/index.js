@@ -3,7 +3,7 @@
 
 import { faker } from '@faker-js/faker';
 // CORRECCIÓN: La ruta correcta es con dos niveles hacia arriba (../../)
-import encrypt from '../server/lib/secure.js';
+import encrypt from '../../server/lib/secure.cjs';
 
 // Datos de test predefinidos
 export const getTestData = () => ({
