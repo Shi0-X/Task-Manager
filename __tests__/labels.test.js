@@ -1,7 +1,6 @@
 // __tests__/labels.test.js
 // @ts-check
 
-// CORRECCIÓN: El import se ha formateado en varias líneas.
 import {
   describe,
   beforeAll,
@@ -52,7 +51,7 @@ describe('test labels CRUD', () => {
 
       // Preparar datos de prueba
       await prepareData(app);
-      // CORRECCIÓN: Se eliminó la línea con espacios sobrantes.
+
       // Preparar datos específicos de etiquetas
       await prepareLabelsData(app);
     } catch (err) {
@@ -104,8 +103,8 @@ describe('test labels CRUD', () => {
         cookies: cookie,
       });
       expect([200, 302]).toContain(response.statusCode);
-    } catch (err)
-    {
+      // CORRECCIÓN: El estilo "brace-style" requiere la llave en la misma línea.
+    } catch (err) {
       console.error('Error en prueba new with auth:', err);
       expect(true).toBeTruthy();
     }
@@ -236,3 +235,4 @@ describe('test labels CRUD', () => {
     }
   });
 });
+// CORRECCIÓN: Se añade una línea en blanco al final del archivo (eol-last).

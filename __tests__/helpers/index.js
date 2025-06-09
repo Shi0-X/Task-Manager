@@ -2,15 +2,14 @@
 // @ts-check
 
 import { faker } from '@faker-js/faker';
-// CORRECCIÓN: La ruta de importación ahora es correcta.
-import encrypt from '../server/lib/secure.js';
+// CORRECCIÓN: La ruta correcta es con dos niveles hacia arriba (../../)
+import encrypt from '../../server/lib/secure.js';
 
 // Datos de test predefinidos
 export const getTestData = () => ({
   users: {
     new: {
       firstName: faker.person.firstName(),
-      // CORRECCIÓN: Se eliminó el espacio sobrante al final de la línea.
       lastName: faker.person.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
@@ -125,7 +124,6 @@ export const prepareLabelsData = async (app) => {
 export const prepareData = async (app) => {
   const { knex } = app.objection;
 
-  // CORRECCIÓN: Se eliminaron líneas con espacios sobrantes.
   try {
     // Limpiar datos existentes
     await knex.raw('PRAGMA foreign_keys = OFF');
@@ -188,12 +186,11 @@ export const signIn = async (app, userData) => {
     },
   });
 
-  // CORRECCIÓN: Usar desestructuración de objetos.
   const { cookies } = response;
   if (cookies && cookies.length > 0) {
-    // CORRECCIÓN: Añadir paréntesis al argumento de la función flecha.
     return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
   }
 
   return '';
 };
+// CORRECCIÓN: Se añade una línea en blanco al final del archivo (eol-last).
