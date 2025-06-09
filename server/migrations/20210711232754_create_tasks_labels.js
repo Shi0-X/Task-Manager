@@ -3,7 +3,7 @@
  * @param {import('knex')} knex
  */
 export const up = (knex) => (
-    knex.schema.createTable('tasks_labels', (table) => {
+  knex.schema.createTable('tasks_labels', (table) => {
     table.increments('id').primary();
     table.integer('task_id').unsigned().notNullable()
       .references('id').inTable('tasks').onDelete('CASCADE');
@@ -12,7 +12,7 @@ export const up = (knex) => (
     table.unique(['task_id', 'label_id']);
     table.timestamp('created_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').defaultTo(knex.fn.now());
-    })
-  );
+  })
+);
   
-  export const down = (knex) => knex.schema.dropTable('tasks_labels');
+export const down = (knex) => knex.schema.dropTable('tasks_labels');
