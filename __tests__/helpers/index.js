@@ -3,7 +3,7 @@
 
 import { faker } from '@faker-js/faker';
 // CORRECCIÓN: La ruta correcta es con dos niveles hacia arriba (../../)
-import encrypt from '../../server/lib/secure.js';
+import encrypt from '../server/lib/secure.js';
 
 // Datos de test predefinidos
 export const getTestData = () => ({
@@ -193,4 +193,3 @@ export const signIn = async (app, userData) => {
 
   return '';
 };
-// CORRECCIÓN: Se añade una línea en blanco al final del archivo (eol-last).

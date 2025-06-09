@@ -235,4 +235,3 @@ describe('test labels CRUD', () => {
     }
   });
 });
-// CORRECCIÓN: Se añade una línea en blanco al final del archivo (eol-last).
