@@ -1,13 +1,20 @@
 // __tests__/labels.test.js
 // @ts-check
 
+// CORRECCIÓN: El import se ha formateado en varias líneas.
 import {
-  describe, beforeAll, it, expect, afterAll,
+  describe,
+  beforeAll,
+  it,
+  expect,
+  afterAll,
 } from '@jest/globals';
 
 import fastify from 'fastify';
 import init from '../server/plugin.js';
-import { getTestData, prepareData, signIn, prepareLabelsData } from './helpers/index.js';
+import {
+  getTestData, prepareData, signIn, prepareLabelsData,
+} from './helpers/index.js';
 
 describe('test labels CRUD', () => {
   let app;
@@ -45,7 +52,7 @@ describe('test labels CRUD', () => {
 
       // Preparar datos de prueba
       await prepareData(app);
-      
+      // CORRECCIÓN: Se eliminó la línea con espacios sobrantes.
       // Preparar datos específicos de etiquetas
       await prepareLabelsData(app);
     } catch (err) {
@@ -97,7 +104,8 @@ describe('test labels CRUD', () => {
         cookies: cookie,
       });
       expect([200, 302]).toContain(response.statusCode);
-    } catch (err) {
+    } catch (err)
+    {
       console.error('Error en prueba new with auth:', err);
       expect(true).toBeTruthy();
     }

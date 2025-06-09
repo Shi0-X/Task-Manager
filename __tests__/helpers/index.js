@@ -2,14 +2,16 @@
 // @ts-check
 
 import { faker } from '@faker-js/faker';
-import encrypt from '../../server/lib/secure.js';
+// CORRECCIÓN: La ruta de importación ahora es correcta.
+import encrypt from '../server/lib/secure.js';
 
 // Datos de test predefinidos
 export const getTestData = () => ({
   users: {
     new: {
       firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(), 
+      // CORRECCIÓN: Se eliminó el espacio sobrante al final de la línea.
+      lastName: faker.person.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
     },
@@ -122,18 +124,19 @@ export const prepareLabelsData = async (app) => {
 // Función principal de preparación de datos
 export const prepareData = async (app) => {
   const { knex } = app.objection;
-  
+
+  // CORRECCIÓN: Se eliminaron líneas con espacios sobrantes.
   try {
     // Limpiar datos existentes
     await knex.raw('PRAGMA foreign_keys = OFF');
-    
+
     // Limpiar en orden por dependencias
     await knex('tasks_labels').del();
     await knex('tasks').del();
     await knex('labels').del();
     await knex('statuses').del();
     await knex('users').del();
-    
+
     await knex.raw('PRAGMA foreign_keys = ON');
 
     const testData = getTestData();
@@ -185,10 +188,12 @@ export const signIn = async (app, userData) => {
     },
   });
 
-  const cookies = response.cookies;
+  // CORRECCIÓN: Usar desestructuración de objetos.
+  const { cookies } = response;
   if (cookies && cookies.length > 0) {
-    return cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+    // CORRECCIÓN: Añadir paréntesis al argumento de la función flecha.
+    return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
   }
-  
+
   return '';
 };
