@@ -3,6 +3,7 @@ import knex from 'knex';
 import * as knexConfig from '../../knexfile.js';
 
 // Función para crear una instancia de base de datos limpia para pruebas
+/* eslint-disable no-restricted-syntax, no-await-in-loop */
 export const createTestDatabase = async () => {
   // Crear una instancia de Knex con la configuración de prueba
   const db = knex(knexConfig.test);

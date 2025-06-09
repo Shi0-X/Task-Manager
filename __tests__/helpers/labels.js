@@ -1,7 +1,7 @@
 // __tests__/helpers/labels.js
 
 // Función para preparar datos de etiquetas para las pruebas
-export const prepareLabelsData = async (app) => {
+const prepareLabelsData = async (app) => {
   const { knex } = app.objection;
 
   // Verificar si las tablas existen, y crearlas si no
@@ -72,3 +72,5 @@ export const prepareLabelsData = async (app) => {
     // No lanzar el error, para permitir que las pruebas continúen
   }
 };
+
+export default prepareLabelsData;
