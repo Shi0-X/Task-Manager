@@ -7,8 +7,7 @@ import {
 
 import fastify from 'fastify';
 import init from '../server/plugin.js';
-import { getTestData, prepareData, signIn } from './helpers/index.js';
-import { prepareLabelsData } from './helpers/labels.js';
+import { getTestData, prepareData, signIn, prepareLabelsData } from './helpers/index.js';
 
 describe('test labels CRUD', () => {
   let app;
@@ -46,8 +45,8 @@ describe('test labels CRUD', () => {
 
       // Preparar datos de prueba
       await prepareData(app);
-
-      // Preparar datos específicos para etiquetas
+      
+      // Preparar datos específicos de etiquetas
       await prepareLabelsData(app);
     } catch (err) {
       console.error('Error al configurar la base de datos:', err.message);
