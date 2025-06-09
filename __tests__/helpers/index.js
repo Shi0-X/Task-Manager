@@ -7,7 +7,7 @@ import knex from 'knex';
 import * as knexConfig from '../../knexfile.js';
 import encrypt from '../../server/lib/secure.cjs';
 
-const testKnexInstance = knex(knexConfig.test);
+const testKnex = knex(knexConfig.test);
 
 const getFixturePath = (filename) => path.join('..', '..', '__fixtures__', filename);
 const readFixture = (filename) => fs.readFileSync(new URL(getFixturePath(filename), import.meta.url), 'utf-8').trim();
@@ -16,10 +16,10 @@ const getFixtureData = (filename) => JSON.parse(readFixture(filename));
 export const getTestData = () => getFixtureData('testData.json');
 
 export const prepareData = async (app) => {
-  const { knex: appKnex } = app.objection;
+  const { knex } = app.objection;
 
   // Solo insertar los usuarios, como lo hacía originalmente
-  await appKnex('users').insert(getFixtureData('users.json'));
+  await knex('users').insert(getFixtureData('users.json'));
   // NO agregar estados ni tareas aquí para mantener la compatibilidad
 };
 
@@ -39,7 +39,7 @@ export const signIn = async (app, data) => {
 
 export const addTestUser = async (userData) => {
   try {
-    return await testKnexInstance('users').insert({
+    return await testKnex('users').insert({
       first_name: userData.firstName,
       last_name: userData.lastName,
       email: userData.email,
@@ -52,5 +52,5 @@ export const addTestUser = async (userData) => {
 };
 
 export const closeTestConnection = async () => {
-  await testKnexInstance.destroy();
+  await testKnex.destroy();
 };

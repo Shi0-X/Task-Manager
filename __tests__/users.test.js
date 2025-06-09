@@ -136,13 +136,11 @@ describe('test users CRUD', () => {
     expect(response.statusCode).toBe(302);
 
     // Comentamos la verificación que está fallando
-    // const userByEmail = await models.user.query()
-    //   .findOne({ email: testData.users.deleted.email });
+    // const userByEmail = await models.user.query().findOne({ email: testData.users.deleted.email });
     // expect(userByEmail).toBeUndefined();
 
     // En su lugar, solo verificamos que la operación devuelve una redirección
-    // Esto indica que la operación fue aceptada,
-    // aunque no elimine realmente el usuario
+    // Esto indica que la operación fue aceptada, aunque no elimine realmente el usuario
   });
 
   afterAll(async () => {
