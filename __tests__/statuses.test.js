@@ -6,11 +6,9 @@ import {
 
 import fastify from 'fastify';
 import init from '../server/plugin.js';
-import { getTestData } from './helpers/index.js';
 
 describe('test statuses CRUD', () => {
   let app;
-  const testData = getTestData();
 
   beforeAll(async () => {
     app = fastify({
@@ -30,7 +28,7 @@ describe('test statuses CRUD', () => {
       method: 'GET',
       url: app.reverse('statuses'),
     });
-      // Aceptamos tanto 200 como 500 (cuando la tabla no existe)
+    // Aceptamos tanto 200 como 500 (cuando la tabla no existe)
     expect([200, 500]).toContain(response.statusCode);
   });
 
