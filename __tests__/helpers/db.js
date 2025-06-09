@@ -30,12 +30,14 @@ export const createTestDatabase = async () => {
 export const cleanDatabase = async (db) => {
   const tables = ['users']; // Agregar más tablas si es necesario
 
+  /* eslint-disable no-restricted-syntax, no-await-in-loop */
   for (const table of tables) {
     const exists = await db.schema.hasTable(table);
     if (exists) {
       await db(table).delete();
     }
   }
+  /* eslint-enable no-restricted-syntax, no-await-in-loop */
 };
 
 // Función para cerrar la conexión a la base de datos
