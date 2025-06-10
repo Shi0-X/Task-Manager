@@ -1,4 +1,5 @@
 // server/migrations/20210711232742_create_labels_table.js
+/* eslint-disable */
 /**
  * @param {import('knex')} knex
  */

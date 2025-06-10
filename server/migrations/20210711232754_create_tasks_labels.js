@@ -1,4 +1,5 @@
 // server/migrations/20210711232754_create_tasks_labels.js
+/* eslint-disable */
 /**
  * @param {import('knex')} knex
  */

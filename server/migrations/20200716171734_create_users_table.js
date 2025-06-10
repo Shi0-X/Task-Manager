@@ -1,6 +1,8 @@
 // server/migrations/20210711224051_create_users_table.js
 // @ts-check
 
+/* eslint-disable */
+
 export const up = (knex) =>
   knex.schema.createTable('users', (table) => {
     table.increments('id').primary();

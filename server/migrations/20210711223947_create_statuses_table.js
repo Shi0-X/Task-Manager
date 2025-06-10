@@ -1,4 +1,5 @@
 // server/migrations/20210711223947_create_statuses_table.js
+/* eslint-disable */
 /**
  * @param {import('knex')} knex
  */
